@@ -13,11 +13,11 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-20 hover:w-64 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 overflow-hidden group shadow-lg">
-      <div className="p-6 border-b border-gray-100 flex items-center h-20">
-        <div className="flex items-center gap-3 w-full">
+    <aside className="w-20 hover:w-72 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 overflow-hidden group shadow-lg">
+      <div className="p-6 border-b border-gray-100 flex items-center min-h-24">
+        <div className="flex items-start gap-3 w-full min-w-0">
           <div className="w-8 h-8 min-w-[2rem] bg-orange-600 rounded-lg flex items-center justify-center text-white font-bold shrink-0">G</div>
-          <span className="font-serif text-lg font-semibold text-gray-900 tracking-tight whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+          <span className="min-w-0 max-w-full font-serif text-base font-semibold leading-tight text-gray-900 tracking-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-normal break-words overflow-hidden">
             Gies Sustainability Dashboard
           </span>
         </div>
@@ -43,13 +43,13 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-nowrap">
+      <div className="p-4 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 min-w-0 overflow-hidden">
         <div className="bg-gray-50 p-3 rounded-lg">
           <p className="text-xs text-gray-500 font-medium uppercase mb-1">Data Source</p>
-          <p className="text-xs text-gray-700 truncate">Publication Dataset v2.4</p>
+          <p className="text-xs text-gray-700 whitespace-normal break-words leading-snug">Publication Dataset v2.4</p>
           <div className="flex items-center gap-1 mt-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <span className="text-[10px] text-gray-500">Live & Connected</span>
+            <span className="text-[10px] text-gray-500 whitespace-normal break-words">Live & Connected</span>
           </div>
         </div>
       </div>
