@@ -5,7 +5,17 @@ import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
+  const repo = process.env.GITHUB_REPOSITORY?.split('/')[1];
+  const isUserOrOrgPage = repo?.toLowerCase().endsWith('.github.io');
+
+  // Use repo path for GitHub Pages project sites, root path for local dev and user/org pages.
+  const pagesBase =
+    process.env.GITHUB_ACTIONS === 'true' && repo && !isUserOrOrgPage
+      ? `/${repo}/`
+      : '/';
+
   return {
+    base: pagesBase,
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
