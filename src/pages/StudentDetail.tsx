@@ -8,6 +8,7 @@ export const StudentDetail: React.FC = () => {
   const { theme } = useParams<{ theme: string }>();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type'); // 'sdg' or 'theme' (default)
+  const backLink = type === 'sdg' ? '/' : '/student';
 
   const themeMetrics = useMemo(() => getThemeMetrics(), []);
   const sdgMetrics = useMemo(() => getSDGMetrics(), []);
@@ -41,7 +42,7 @@ export const StudentDetail: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4 mb-8">
-        <Link to="/student" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+        <Link to={backLink} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </Link>
         <div>
