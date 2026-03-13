@@ -14,7 +14,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className="w-20 hover:w-72 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 overflow-hidden group shadow-lg">
-      <div className="px-4 py-5 border-b border-gray-100 flex items-center min-h-20">
+      <div className="px-4 pt-4 pb-3 border-b border-gray-100 flex items-start">
         <div className="flex items-start gap-3 w-full min-w-0">
           <div className="w-8 h-8 min-w-[2rem] bg-orange-600 rounded-lg flex items-center justify-center text-white font-bold shrink-0">G</div>
           <span className="min-w-0 max-w-full font-serif text-base font-semibold leading-tight text-gray-900 tracking-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-normal break-words overflow-hidden">
@@ -43,8 +43,8 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 min-w-0 overflow-hidden">
-        <div className="bg-gray-50 p-3 rounded-lg">
+      <div className="max-h-0 opacity-0 transition-all duration-300 min-w-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
+        <div className="m-4 mt-0 border-t border-gray-100 bg-gray-50 p-3 rounded-lg">
           <p className="text-xs text-gray-500 font-medium uppercase mb-1">Data Source</p>
           <p className="text-xs text-gray-700 whitespace-normal break-words leading-snug">Publication Dataset v2.4</p>
           <div className="flex items-center gap-1 mt-2">
