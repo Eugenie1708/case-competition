@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, GraduationCap, Users, Briefcase, BarChart3, Home } from 'lucide-react';
+import { GraduationCap, Users, Briefcase, BarChart3, Home } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export const Sidebar: React.FC = () => {
@@ -14,7 +14,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className="w-20 hover:w-72 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 h-screen fixed left-0 top-0 flex flex-col z-50 overflow-hidden group shadow-lg">
-      <div className="p-6 border-b border-gray-100 flex items-center min-h-24">
+      <div className="px-4 py-5 border-b border-gray-100 flex items-center min-h-20">
         <div className="flex items-start gap-3 w-full min-w-0">
           <div className="w-8 h-8 min-w-[2rem] bg-orange-600 rounded-lg flex items-center justify-center text-white font-bold shrink-0">G</div>
           <span className="min-w-0 max-w-full font-serif text-base font-semibold leading-tight text-gray-900 tracking-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-normal break-words overflow-hidden">
@@ -23,7 +23,7 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      <nav className="flex-1 py-6 px-3 space-y-1">
+      <nav className="flex-1 pt-3 pb-6 px-3 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
