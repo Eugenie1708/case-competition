@@ -23,7 +23,7 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      <nav className="flex-1 pt-3 pb-6 px-3 space-y-1">
+      <nav className="pt-3 px-3 space-y-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
         ))}
       </nav>
 
-      <div className="max-h-0 opacity-0 transition-all duration-300 min-w-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
+      <div className="mt-auto max-h-0 opacity-0 transition-all duration-300 min-w-0 overflow-hidden group-hover:max-h-40 group-hover:opacity-100">
         <div className="m-4 mt-0 border-t border-gray-100 bg-gray-50 p-3 rounded-lg">
           <p className="text-xs text-gray-500 font-medium uppercase mb-1">Data Source</p>
           <p className="text-xs text-gray-700 whitespace-normal break-words leading-snug">Publication Dataset v2.4</p>
