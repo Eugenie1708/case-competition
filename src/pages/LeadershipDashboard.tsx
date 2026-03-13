@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { getLeadershipMetrics, getThemeMetrics, getSDGMetrics } from '../utils/transformData';
 import { KPICard } from '../components/KPICard';
+import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { Download, Share2 } from 'lucide-react';
 
@@ -13,22 +14,22 @@ export const LeadershipDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="text-2xl font-serif font-medium text-gray-900">Strategic Overview</h2>
-          <p className="text-gray-500 mt-1">High-level summary of sustainability research activity, trends, and key institutional insights.</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
-            <Share2 className="w-4 h-4" />
-            Share
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800">
-            <Download className="w-4 h-4" />
-            Export Report
-          </button>
-        </div>
-      </div>
+      <DashboardPageHeader
+        title="Strategic Overview"
+        subtitle="High-level summary of sustainability research activity, trends, and key institutional insights."
+        actions={
+          <>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
+              <Share2 className="w-4 h-4" />
+              Share
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800">
+              <Download className="w-4 h-4" />
+              Export Report
+            </button>
+          </>
+        }
+      />
 
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

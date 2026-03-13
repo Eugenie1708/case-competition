@@ -23,7 +23,7 @@ export const Home: React.FC = () => {
             {SDGS.map((sdg) => (
               <Link 
                 key={sdg.id} 
-                to={`/student/detail/${encodeURIComponent(sdg.name)}?type=sdg`}
+                to={`/sdg/${sdg.id}`}
                 className="group relative aspect-square rounded-lg overflow-hidden hover:ring-2 hover:ring-offset-2 hover:ring-gray-400 transition-all"
                 title={sdg.name}
               >

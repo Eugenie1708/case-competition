@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getFacultyData, getLeadershipMetrics } from '../utils/transformData';
 import { KPICard } from '../components/KPICard';
 import { FacultyTable } from '../components/FacultyTable';
+import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { Search, Filter } from 'lucide-react';
 
 export const FacultyDashboard: React.FC = () => {
@@ -18,28 +19,28 @@ export const FacultyDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="text-2xl font-serif font-medium text-gray-900">Faculty Dashboard</h2>
-          <p className="text-gray-500 mt-1">Track research impact and identify collaborators.</p>
-        </div>
-        <div className="flex gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search faculty..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 w-64"
-            />
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
-            <Filter className="w-4 h-4" />
-            Filter
-          </button>
-        </div>
-      </div>
+      <DashboardPageHeader
+        title="Faculty Dashboard"
+        subtitle="Track research impact and identify collaborators."
+        actions={
+          <>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search faculty..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 w-64"
+              />
+            </div>
+            <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
+              <Filter className="w-4 h-4" />
+              Filter
+            </button>
+          </>
+        }
+      />
 
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

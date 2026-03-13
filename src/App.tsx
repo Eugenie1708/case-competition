@@ -7,12 +7,14 @@ import { IndustryDashboard } from './pages/IndustryDashboard';
 import { LeadershipDashboard } from './pages/LeadershipDashboard';
 import { StudentDetail } from './pages/StudentDetail';
 import { FacultyProfile } from './pages/FacultyProfile';
+import { SDGDetailPage } from './pages/SDGDetailPage';
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="sdg/:goalId" element={<SDGDetailPage />} />
         <Route path="student" element={<StudentDashboard />} />
         <Route path="student/detail/:theme" element={<StudentDetail />} />
         <Route path="faculty" element={<FacultyDashboard />} />

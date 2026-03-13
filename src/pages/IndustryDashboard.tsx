@@ -4,6 +4,7 @@ import { THEMES } from '../utils/transformData';
 import { Lightbulb, TrendingUp } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ResourceCard } from '../components/ResourceCard';
+import { DashboardPageHeader } from '../components/DashboardPageHeader';
 
 export const IndustryDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(THEMES[0]);
@@ -15,10 +16,10 @@ export const IndustryDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-serif font-medium text-gray-900">Industry Insights</h2>
-        <p className="text-gray-500 mt-1">Translating academic research into actionable business intelligence.</p>
-      </div>
+      <DashboardPageHeader
+        title="Industry Insights"
+        subtitle="Translating academic research into actionable business intelligence."
+      />
 
       {/* Tabs */}
       <div className="flex overflow-x-auto pb-2 gap-2 border-b border-gray-200">

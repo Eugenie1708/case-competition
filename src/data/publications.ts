@@ -2,6 +2,7 @@ export interface Publication {
   article_uuid: string;
   title: string;
   publication_year: number;
+  data_source_date: string;
   doi: string;
   abstract: string;
   journal_title: string;
@@ -26,6 +27,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-001",
     title: "Sustainable Supply Chain Management in Emerging Markets",
     publication_year: 2023,
+    data_source_date: "2026-01-12",
     doi: "10.1016/j.ijpe.2023.1023",
     abstract: "This study explores the challenges and opportunities of implementing sustainable supply chain practices in emerging economies, focusing on environmental compliance and social responsibility.",
     journal_title: "International Journal of Production Economics",
@@ -48,6 +50,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-002",
     title: "Carbon Pricing Mechanisms and Corporate Financial Performance",
     publication_year: 2024,
+    data_source_date: "2026-01-18",
     doi: "10.1111/jofi.12345",
     abstract: "An empirical analysis of how internal carbon pricing mechanisms influence long-term financial performance in Fortune 500 companies.",
     journal_title: "Journal of Finance",
@@ -70,6 +73,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-003",
     title: "Consumer Perception of Green Washing in the Fashion Industry",
     publication_year: 2022,
+    data_source_date: "2026-01-24",
     doi: "10.1080/0267257X.2022.2034567",
     abstract: "Investigating the impact of perceived greenwashing on brand loyalty and consumer trust within the fast fashion sector.",
     journal_title: "Journal of Marketing Management",
@@ -92,6 +96,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-004",
     title: "AI-Driven Optimization for Energy Efficient Data Centers",
     publication_year: 2024,
+    data_source_date: "2026-02-02",
     doi: "10.1109/TKDE.2024.3123456",
     abstract: "Proposing a novel machine learning algorithm to optimize cooling systems in large-scale data centers, significantly reducing energy consumption.",
     journal_title: "IEEE Transactions on Knowledge and Data Engineering",
@@ -114,6 +119,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-005",
     title: "The Role of Microfinance in Rural Development",
     publication_year: 2021,
+    data_source_date: "2026-02-08",
     doi: "10.1016/j.worlddev.2021.105432",
     abstract: "A longitudinal study on the effectiveness of microfinance institutions in alleviating poverty and promoting sustainable development in rural areas.",
     journal_title: "World Development",
@@ -136,6 +142,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-006",
     title: "Corporate Governance and Environmental Disclosures",
     publication_year: 2023,
+    data_source_date: "2026-02-11",
     doi: "10.1007/s10551-023-05432-1",
     abstract: "Analyzing the relationship between board diversity and the quality of environmental disclosures in annual reports.",
     journal_title: "Journal of Business Ethics",
@@ -158,6 +165,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-007",
     title: "Circular Economy Models in the Automotive Industry",
     publication_year: 2024,
+    data_source_date: "2026-02-17",
     doi: "10.1016/j.jclepro.2024.123456",
     abstract: "Case studies of major automotive manufacturers transitioning to circular economy models to reduce waste and resource dependency.",
     journal_title: "Journal of Cleaner Production",
@@ -180,6 +188,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-008",
     title: "Impact Investing: Trends and Future Directions",
     publication_year: 2022,
+    data_source_date: "2026-02-21",
     doi: "10.1093/rfs/hhac001",
     abstract: "A comprehensive review of the impact investing landscape, identifying key trends and predicting future growth areas.",
     journal_title: "Review of Financial Studies",
@@ -202,6 +211,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-009",
     title: "Ethical Leadership in the Digital Age",
     publication_year: 2023,
+    data_source_date: "2026-02-26",
     doi: "10.1177/01492063231154321",
     abstract: "Examining how digital transformation challenges traditional notions of ethical leadership and proposes new frameworks for the digital era.",
     journal_title: "Journal of Management",
@@ -224,6 +234,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-010",
     title: "Blockchain for Transparent Supply Chains",
     publication_year: 2024,
+    data_source_date: "2026-03-02",
     doi: "10.1111/poms.13456",
     abstract: "Investigating the potential of blockchain technology to enhance transparency and traceability in global supply chains.",
     journal_title: "Production and Operations Management",
@@ -246,6 +257,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-011",
     title: "Social Entrepreneurship and Community Resilience",
     publication_year: 2021,
+    data_source_date: "2026-03-05",
     doi: "10.1002/sej.1345",
     abstract: "How social entrepreneurs contribute to building community resilience in the face of economic and environmental shocks.",
     journal_title: "Strategic Entrepreneurship Journal",
@@ -268,6 +280,7 @@ export const MOCK_PUBLICATIONS: Publication[] = [
     article_uuid: "pub-012",
     title: "Green Bonds: A Critical Assessment",
     publication_year: 2023,
+    data_source_date: "2026-03-09",
     doi: "10.1016/j.jbankfin.2023.106789",
     abstract: "A critical assessment of the green bond market, evaluating its effectiveness in funding environmentally friendly projects.",
     journal_title: "Journal of Banking & Finance",

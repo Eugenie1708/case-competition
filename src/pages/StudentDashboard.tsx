@@ -5,6 +5,7 @@ import { getThemeMetrics, getLeadershipMetrics, getSDGMetrics } from '../utils/t
 import { KPICard } from '../components/KPICard';
 import { SourceConfidenceTag } from '../components/SourceConfidenceTag';
 import { FilterDrawer } from '../components/FilterDrawer';
+import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { Filter } from 'lucide-react';
 
 export const StudentDashboard: React.FC = () => {
@@ -18,19 +19,19 @@ export const StudentDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="text-2xl font-serif font-medium text-gray-900">Student Dashboard</h2>
-          <p className="text-gray-500 mt-1">Explore research themes and find faculty mentors.</p>
-        </div>
-        <button 
-          onClick={() => setIsFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50"
-        >
-          <Filter className="w-4 h-4" />
-          Filters
-        </button>
-      </div>
+      <DashboardPageHeader
+        title="Student Dashboard"
+        subtitle="Explore research themes and find faculty mentors."
+        actions={
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+          </button>
+        }
+      />
 
       <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
 
@@ -72,7 +73,7 @@ export const StudentDashboard: React.FC = () => {
                 margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
                 onClick={(data: any) => {
                   if (data && data.activePayload && data.activePayload[0]) {
-                    navigate(`/student/detail/${encodeURIComponent(data.activePayload[0].payload.name)}?type=sdg`);
+                    navigate(`/sdg/${data.activePayload[0].payload.id}`);
                   }
                 }}
                 className="cursor-pointer"
