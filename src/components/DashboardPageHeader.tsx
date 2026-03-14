@@ -8,6 +8,7 @@ interface DashboardPageHeaderProps {
   actions?: React.ReactNode;
   filterButton?: React.ReactNode;
   sdgBasePath?: string;
+  sdgHelperText?: string;
 }
 
 export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
@@ -16,6 +17,7 @@ export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
   actions,
   filterButton,
   sdgBasePath = '/sdg',
+  sdgHelperText,
 }) => {
   return (
     <div className="space-y-4">
@@ -46,6 +48,8 @@ export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
       {actions ? <div className="flex flex-wrap items-center justify-end gap-3">{actions}</div> : null}
 
       <SDGIconRow basePath={sdgBasePath} />
+
+      {sdgHelperText ? <p className="text-xs text-gray-500">{sdgHelperText}</p> : null}
     </div>
   );
 };

@@ -16,8 +16,9 @@ export const FacultyDashboard: React.FC = () => {
       <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
       <DashboardPageHeader
         title="Faculty Dashboard"
-        subtitle="Track research impact and identify collaborators."
+        subtitle="Explore sustainability research impact, discover active faculty, and identify potential collaborators."
         sdgBasePath="/faculty/sdg"
+        sdgHelperText="Select an SDG to explore related faculty research."
         filterButton={
           <button
             onClick={() => setIsFilterOpen(true)}
@@ -32,25 +33,25 @@ export const FacultyDashboard: React.FC = () => {
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <KPICard 
-          title="Total Publications" 
+          title="Total SDG Publications" 
           value={leadershipMetrics.totalPublications} 
           trend="+12%" 
           trendDirection="up" 
         />
         <KPICard 
-          title="Active Researchers" 
+          title="Active SDG Researchers" 
           value={leadershipMetrics.activeFaculty} 
           trend="Stable" 
           trendDirection="neutral" 
         />
         <KPICard 
-          title="Avg. Pubs / Faculty" 
+          title="Avg SDG Pubs / Faculty" 
           value={(leadershipMetrics.totalPublications / leadershipMetrics.activeFaculty).toFixed(1)} 
           trend="+0.2" 
           trendDirection="up" 
         />
         <KPICard 
-          title="Top Department" 
+          title="Top Contributing Department" 
           value={leadershipMetrics.topDepartments[0]?.name || "N/A"} 
           trend="Leading" 
           trendDirection="up" 

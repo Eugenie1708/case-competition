@@ -17,9 +17,9 @@ export const FacultyTable: React.FC<FacultyTableProps> = ({ facultyList }) => {
           <tr className="bg-gray-50 border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
             <th className="py-3 px-6">Faculty Member</th>
             <th className="py-3 px-6">Department</th>
-            <th className="py-3 px-6 text-center">Total Pubs</th>
-            <th className="py-3 px-6 text-center">Sustain. Pubs</th>
-            <th className="py-3 px-6">Top Themes</th>
+            <th className="py-3 px-6 text-center">Total Publications</th>
+            <th className="py-3 px-6 text-center">SDG Publications</th>
+            <th className="py-3 px-6">SDG Research Themes</th>
             <th className="py-3 px-6"></th>
           </tr>
         </thead>
@@ -28,6 +28,7 @@ export const FacultyTable: React.FC<FacultyTableProps> = ({ facultyList }) => {
             <tr 
               key={faculty.uuid} 
               onClick={() => navigate(`/faculty/${faculty.uuid}`)}
+              title="View SDG publications and research contributions."
               className="hover:bg-orange-50/50 cursor-pointer transition-colors group"
             >
               <td className="py-4 px-6">

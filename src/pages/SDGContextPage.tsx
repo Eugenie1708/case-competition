@@ -54,12 +54,16 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
   const pageDescription =
     context === 'student'
       ? 'This page helps students explore this SDG goal and identify faculty they can reach out to.'
-      : `${meta.label} perspective: ${publications.length} publications mapped to this SDG.`;
+      : context === 'faculty'
+        ? 'Faculty research mapped to this SDG.'
+        : `${meta.label} perspective: ${publications.length} publications mapped to this SDG.`;
 
   const sectionDescription =
     context === 'student'
       ? 'Faculty publications related to this SDG that may help students explore research topics and identify potential mentors.'
-      : `Publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) in the ${meta.label.toLowerCase()} context.`;
+      : context === 'faculty'
+        ? `Faculty research publications contributing to SDG ${sdgMetric?.id ?? ''}.`
+        : `Publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) in the ${meta.label.toLowerCase()} context.`;
 
   const sectionTitle =
     context === 'student' ? 'Publications' : `${meta.label} SDG Publications`;
