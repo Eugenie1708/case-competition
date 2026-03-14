@@ -22,6 +22,7 @@ export interface Publication {
   active: boolean;
   pinecone_complete: boolean;
   source: string;
+  summary: string;
   sdgs?: number[];
 }
 
@@ -66,6 +67,34 @@ function parseKeywords(value: string): string[] {
     .filter(Boolean);
 }
 
+function stripHtml(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildSummary(explicitSummary: string, abstractText: string): string {
+  const source = explicitSummary || stripHtml(abstractText);
+  if (!source) {
+    return 'No summary available for this publication.';
+  }
+
+  const sentences = source
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const summary = sentences.slice(0, 2).join(' ');
+  if (summary.length <= 280) {
+    return summary;
+  }
+
+  return `${summary.slice(0, 277).trimEnd()}...`;
+}
+
 function parsePublicationsCSV(raw: string): Publication[] {
   const parsed = Papa.parse<CsvRow>(raw, {
     header: true,
@@ -80,13 +109,14 @@ function parsePublicationsCSV(raw: string): Publication[] {
       const top3 = cell(row, 'top_3', 'top 3');
       const sdgs = parseSdgs(top1, top2, top3);
 
+      const abstract = cell(row, 'abstract');
       return {
         article_uuid: cell(row, 'article_uuid') || `pub-${idx + 1}`,
         title: cell(row, 'title') || 'Untitled Publication',
         publication_year: parseYear(cell(row, 'publication_year')),
         data_source_date: cell(row, 'data_source_date'),
         doi: cell(row, 'doi'),
-        abstract: cell(row, 'abstract'),
+        abstract,
         journal_title: cell(row, 'journal_title'),
         journal_issn: cell(row, 'journal_issn'),
         is_sustain: parseBoolean(cell(row, 'is_sustain')),
@@ -101,6 +131,7 @@ function parsePublicationsCSV(raw: string): Publication[] {
         active: parseBoolean(cell(row, 'active')),
         pinecone_complete: parseBoolean(cell(row, 'pinecone_complete')),
         source: cell(row, 'source') || 'Unknown',
+        summary: buildSummary(cell(row, 'summary'), abstract),
         sdgs,
       };
     });
