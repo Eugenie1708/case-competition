@@ -7,12 +7,24 @@ import { ResourceCard } from '../components/ResourceCard';
 import { FilterDrawer } from '../components/FilterDrawer';
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { KPICard } from '../components/KPICard';
+import { ConsultingDrawer } from '../components/ConsultingDrawer';
 
 export const IndustryDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(THEMES[0]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isConsultingOpen, setIsConsultingOpen] = useState(false);
   const leadershipMetrics = useMemo(() => getLeadershipMetrics(), []);
   const sdgMetrics = useMemo(() => getSDGMetrics(), []);
+
+  const sdgBusinessTooltipTopicsBySdg: Partial<Record<number, string[]>> = {
+    3: ['Preventive health analytics', 'Healthcare operations', 'Digital diagnostics'],
+    7: ['Energy transition', 'Operational efficiency', 'Renewable procurement'],
+    9: ['Process automation', 'Resilient infrastructure', 'Industrial innovation'],
+    12: ['Circular supply chains', 'Waste reduction', 'Sustainable sourcing'],
+    13: ['Carbon accounting', 'Scope 3 reporting', 'Energy transition'],
+    16: ['Governance controls', 'Compliance transparency', 'Risk oversight'],
+    17: ['Cross-sector partnerships', 'Joint ventures', 'Innovation ecosystems'],
+  };
 
   // Filter publications for the active theme to derive insights
   const themePubs = MOCK_PUBLICATIONS.filter(p => 
@@ -22,10 +34,12 @@ export const IndustryDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
       <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      <ConsultingDrawer isOpen={isConsultingOpen} onClose={() => setIsConsultingOpen(false)} />
       <DashboardPageHeader
         title="Industry Insights"
         subtitle="Translating academic research into actionable business intelligence."
         sdgBasePath="/industry/sdg"
+        sdgBusinessTooltipTopicsBySdg={sdgBusinessTooltipTopicsBySdg}
         filterButton={
           <button
             onClick={() => setIsFilterOpen(true)}
@@ -40,19 +54,19 @@ export const IndustryDashboard: React.FC = () => {
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <KPICard 
-          title="Total Publications" 
+          title="Research Insights Available" 
           value={leadershipMetrics.totalPublications} 
           trend="+7%" 
           trendDirection="up" 
         />
         <KPICard 
-          title="Industry-Relevant Themes" 
+          title="Active Business Frameworks" 
           value={THEMES.length} 
           trend="Active" 
           trendDirection="neutral" 
         />
         <KPICard 
-          title="Top SDG" 
+          title="Top Business Opportunity" 
           value={sdgMetrics[0]?.shortName || "N/A"} 
           trend="High Priority" 
           trendDirection="up" 
@@ -102,6 +116,18 @@ export const IndustryDashboard: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-2">Risk Factor</h4>
                 <p className="text-sm text-gray-600">Failure to adapt supply chain transparency may lead to reputational damage.</p>
               </div>
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <h4 className="font-medium text-gray-900 mb-2">Estimated Impact</h4>
+                <p className="text-sm text-gray-600">15% efficiency improvement</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <h4 className="font-medium text-gray-900 mb-2">Implementation Difficulty</h4>
+                <p className="text-sm text-gray-600">Medium</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 md:col-span-2">
+                <h4 className="font-medium text-gray-900 mb-2">Best Fit Industries</h4>
+                <p className="text-sm text-gray-600">Manufacturing • Logistics • Retail</p>
+              </div>
             </div>
           </div>
 
@@ -118,10 +144,14 @@ export const IndustryDashboard: React.FC = () => {
           <div className="bg-gray-900 text-white p-6 rounded-xl shadow-lg">
             <h3 className="font-serif text-lg mb-4">Expert Connect</h3>
             <p className="text-gray-300 text-sm mb-6">
-              Looking for deep expertise in {activeTab}? Connect with our top researchers for advisory and collaboration.
+              Connect with Gies faculty and student teams working on {activeTab}.
             </p>
-            <button className="w-full py-2 bg-white text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors">
-              Find Experts
+            <button
+              onClick={() => setIsConsultingOpen(true)}
+              className="w-full py-2 bg-white text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+            >
+              Explore Experts
+              <span className="ml-1 text-gray-500">• Request Consulting</span>
             </button>
           </div>
 
@@ -133,17 +163,46 @@ export const IndustryDashboard: React.FC = () => {
             <ul className="space-y-4">
               <li className="flex gap-3 items-start">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                <span className="text-sm text-gray-600">Rising demand for scope 3 emissions reporting standards.</span>
+                <div>
+                  <div className="text-sm text-gray-600">Rising demand for Scope 3 emissions reporting.</div>
+                  <div className="text-xs text-gray-400">Source: EU CSRD Regulation</div>
+                </div>
               </li>
               <li className="flex gap-3 items-start">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                <span className="text-sm text-gray-600">New EU regulations impacting global supply chain compliance.</span>
+                <div>
+                  <div className="text-sm text-gray-600">Global supply chain compliance mandates are accelerating disclosure timelines.</div>
+                  <div className="text-xs text-gray-400">Source: World Economic Forum Supply Chain Outlook</div>
+                </div>
               </li>
               <li className="flex gap-3 items-start">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                <span className="text-sm text-gray-600">Increased investor scrutiny on governance structures.</span>
+                <div>
+                  <div className="text-sm text-gray-600">Investor scrutiny is increasing around governance readiness and transition plans.</div>
+                  <div className="text-xs text-gray-400">Source: MSCI ESG Trends Report</div>
+                </div>
               </li>
             </ul>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+            <h3 className="font-medium text-gray-900 mb-2">💛 Support Our Mission</h3>
+            <p className="text-sm text-gray-500 mb-4">Help expand sustainability research translation into industry impact.</p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {['$10', '$25', '$50', '$100'].map((amount) => (
+                <span key={amount} className="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-full">
+                  {amount}
+                </span>
+              ))}
+            </div>
+            <a
+              href="https://giesbusiness.illinois.edu/give"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-full justify-center py-2 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors"
+            >
+              Donate Now
+            </a>
           </div>
         </div>
       </div>
