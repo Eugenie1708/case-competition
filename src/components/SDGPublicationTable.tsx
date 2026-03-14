@@ -31,7 +31,6 @@ export const SDGPublicationTable: React.FC<SDGPublicationTableProps> = ({ public
               <th className="py-3 px-4">Author</th>
               <th className="py-3 px-4">Department</th>
               <th className="py-3 px-4">Publication Year</th>
-              <th className="py-3 px-4">Data Source Date</th>
               <th className="py-3 px-4">Link</th>
             </tr>
           </thead>
@@ -52,7 +51,6 @@ export const SDGPublicationTable: React.FC<SDGPublicationTableProps> = ({ public
                 <td className="py-4 px-4 text-sm text-gray-600 whitespace-nowrap">{pub.author_name}</td>
                 <td className="py-4 px-4 text-sm text-gray-600 whitespace-nowrap">{pub.department}</td>
                 <td className="py-4 px-4 text-sm text-gray-600 whitespace-nowrap">{pub.publication_year}</td>
-                <td className="py-4 px-4 text-sm text-gray-600 whitespace-nowrap">{pub.data_source_date}</td>
                 <td className="py-4 px-4">
                   <a
                     href={pub.doi ? `https://doi.org/${pub.doi}` : '#'}

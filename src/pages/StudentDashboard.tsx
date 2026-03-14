@@ -84,13 +84,21 @@ export const StudentDashboard: React.FC = () => {
                 <YAxis 
                   dataKey="shortName" 
                   type="category" 
-                  width={100} 
+                  width={130} 
+                  tickFormatter={(_, index) => {
+                    const metric = sdgMetrics.slice(0, 10)[index];
+                    return metric ? `${metric.id}. ${metric.shortName}` : '';
+                  }}
                   tick={{ fontSize: 11, fill: '#4B5563' }} 
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip 
                   cursor={{ fill: '#F3F4F6' }}
+                  labelFormatter={(_, payload) => {
+                    const metric = payload?.[0]?.payload;
+                    return metric ? `Goal ${metric.id}: ${metric.name}` : '';
+                  }}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24}>
