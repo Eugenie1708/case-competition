@@ -21,7 +21,6 @@ export const FacultyTable: React.FC<FacultyTableProps> = ({ facultyList }) => {
             <th className="py-3 px-6 text-center">Total Publications</th>
             <th className="py-3 px-6 text-center">SDG Publications</th>
             <th className="py-3 px-6">SDG Research Themes</th>
-            <th className="py-3 px-6">SDG Goals</th>
             <th className="py-3 px-6"></th>
           </tr>
         </thead>
@@ -52,15 +51,6 @@ export const FacultyTable: React.FC<FacultyTableProps> = ({ facultyList }) => {
               </td>
               <td className="py-4 px-6 text-center font-mono text-sm font-medium text-emerald-600 bg-emerald-50/30 rounded-lg">
                 {faculty.sustainabilityPublications}
-              </td>
-              <td className="py-4 px-6">
-                <div className="flex flex-wrap gap-1">
-                  {faculty.topThemes.map((theme, idx) => (
-                    <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded-full border border-gray-200">
-                      {theme}
-                    </span>
-                  ))}
-                </div>
               </td>
               <td className="py-4 px-6">
                 <div className="flex flex-wrap gap-1">
