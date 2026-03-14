@@ -1,3 +1,4 @@
+import Papa from 'papaparse';
 import csvRaw from './filtered_publications.csv?raw';
 
 export interface Publication {
@@ -20,76 +21,89 @@ export interface Publication {
   department: string;
   active: boolean;
   pinecone_complete: boolean;
-  source: 'Financial Times' | 'UT Dallas' | 'General Business';
+  source: string;
   sdgs?: number[];
 }
 
-function parseCSVLine(line: string): string[] {
-  const fields: string[] = [];
-  let field = '';
-  let inQuotes = false;
+type CsvRow = Record<string, string | undefined>;
 
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        field += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-      continue;
+function cell(row: CsvRow, ...keys: string[]): string {
+  for (const key of keys) {
+    const value = row[key];
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return String(value).trim();
     }
-
-    if (ch === ',' && !inQuotes) {
-      fields.push(field);
-      field = '';
-      continue;
-    }
-
-    field += ch;
   }
+  return '';
+}
 
-  fields.push(field);
-  return fields;
+function parseBoolean(value: string): boolean {
+  const v = value.trim().toLowerCase();
+  return v === 'true' || v === '1' || v === '1.0' || v === 'yes';
+}
+
+function parseYear(value: string): number {
+  const year = Number.parseInt(value, 10);
+  return Number.isFinite(year) ? year : 0;
+}
+
+function parseSdgs(...values: string[]): number[] {
+  return Array.from(
+    new Set(
+      values
+        .map((v) => Number.parseInt(v, 10))
+        .filter((n) => Number.isFinite(n) && n > 0 && n <= 17),
+    ),
+  );
+}
+
+function parseKeywords(value: string): string[] {
+  if (!value) return [];
+  const delimiter = value.includes('|') ? '|' : ';';
+  return value
+    .split(delimiter)
+    .map((k) => k.trim())
+    .filter(Boolean);
 }
 
 function parsePublicationsCSV(raw: string): Publication[] {
-  const lines = raw
-    .replace(/\r\n/g, '\n')
-    .split('\n')
-    .filter((line) => line.trim().length > 0);
-
-  const [, ...dataLines] = lines;
-
-  return dataLines.map((line) => {
-    const f = parseCSVLine(line);
-
-    return {
-      article_uuid: f[0],
-      title: f[1],
-      publication_year: parseInt(f[2], 10),
-      data_source_date: f[3],
-      doi: f[4],
-      abstract: f[5],
-      journal_title: f[6],
-      journal_issn: f[7],
-      is_sustain: f[8] === 'true',
-      top_1: f[9],
-      top_2: f[10],
-      top_3: f[11],
-      keywords: f[12].split('|').filter(Boolean),
-      person_uuid: f[13],
-      author_name: f[14],
-      author_email: f[15],
-      department: f[16],
-      active: f[17] === 'true',
-      pinecone_complete: f[18] === 'true',
-      source: f[19] as Publication['source'],
-      sdgs: f[20] ? f[20].split('|').map(Number).filter(Boolean) : [],
-    };
+  const parsed = Papa.parse<CsvRow>(raw, {
+    header: true,
+    skipEmptyLines: true,
   });
+
+  return parsed.data
+    .filter((row) => Object.values(row).some((v) => String(v ?? '').trim() !== ''))
+    .map((row, idx) => {
+      const top1 = cell(row, 'top_1', 'top 1');
+      const top2 = cell(row, 'top_2', 'top 2');
+      const top3 = cell(row, 'top_3', 'top 3');
+      const sdgs = parseSdgs(top1, top2, top3);
+
+      return {
+        article_uuid: cell(row, 'article_uuid') || `pub-${idx + 1}`,
+        title: cell(row, 'title') || 'Untitled Publication',
+        publication_year: parseYear(cell(row, 'publication_year')),
+        data_source_date: cell(row, 'data_source_date'),
+        doi: cell(row, 'doi'),
+        abstract: cell(row, 'abstract'),
+        journal_title: cell(row, 'journal_title'),
+        journal_issn: cell(row, 'journal_issn'),
+        is_sustain: parseBoolean(cell(row, 'is_sustain')),
+        top_1: top1,
+        top_2: top2,
+        top_3: top3,
+        keywords: parseKeywords(cell(row, 'keywords')),
+        person_uuid: cell(row, 'person_uuid'),
+        author_name: cell(row, 'author_name', 'name'),
+        author_email: cell(row, 'author_email', 'email'),
+        department: cell(row, 'department'),
+        active: parseBoolean(cell(row, 'active')),
+        pinecone_complete: parseBoolean(cell(row, 'pinecone_complete')),
+        source: cell(row, 'source') || 'Unknown',
+        sdgs,
+      };
+    });
 }
 
 export const MOCK_PUBLICATIONS: Publication[] = parsePublicationsCSV(csvRaw);
