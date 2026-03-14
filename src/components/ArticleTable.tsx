@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Publication } from '../data/publications';
 import { SourceConfidenceTag } from './SourceConfidenceTag';
 import { getConfidenceLevel } from '../utils/transformData';
@@ -8,21 +8,69 @@ interface ArticleTableProps {
   publications: Publication[];
 }
 
+type SortKey = 'year' | 'journal' | 'sdg';
+type SortDirection = 'asc' | 'desc';
+
 export const ArticleTable: React.FC<ArticleTableProps> = ({ publications }) => {
+  const [sortKey, setSortKey] = useState<SortKey>('year');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const sortedPublications = useMemo(() => {
+    const copy = [...publications];
+
+    copy.sort((left, right) => {
+      let comparison = 0;
+
+      if (sortKey === 'year') {
+        comparison = left.publication_year - right.publication_year;
+      } else if (sortKey === 'journal') {
+        comparison = left.journal_title.localeCompare(right.journal_title);
+      } else {
+        const leftGoal = getPublicationSdgs(left)[0] ?? 999;
+        const rightGoal = getPublicationSdgs(right)[0] ?? 999;
+        comparison = leftGoal - rightGoal;
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return copy;
+  }, [publications, sortDirection, sortKey]);
+
+  const toggleSort = (key: SortKey) => {
+    setSortDirection((currentDirection) => {
+      if (sortKey !== key) {
+        setSortKey(key);
+        return key === 'year' ? 'desc' : 'asc';
+      }
+
+      return currentDirection === 'asc' ? 'desc' : 'asc';
+    });
+
+    if (sortKey !== key) {
+      setSortKey(key);
+    }
+  };
+
+  const sortIndicator = (key: SortKey) => {
+    if (sortKey !== key) return '';
+    return sortDirection === 'asc' ? ' ↑' : ' ↓';
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-gray-200 text-xs font-medium text-gray-500 uppercase tracking-wider">
             <th className="py-3 px-4">Title</th>
-            <th className="py-3 px-4">Year</th>
-            <th className="py-3 px-4">Journal</th>
-            <th className="py-3 px-4">Related SDG Goals</th>
+            <th className="py-3 px-4 cursor-pointer select-none" onClick={() => toggleSort('year')}>Year{sortIndicator('year')}</th>
+            <th className="py-3 px-4 cursor-pointer select-none" onClick={() => toggleSort('journal')}>Journal{sortIndicator('journal')}</th>
+            <th className="py-3 px-4 cursor-pointer select-none" onClick={() => toggleSort('sdg')}>Related SDG Goals{sortIndicator('sdg')}</th>
             <th className="py-3 px-4">Confidence</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
-          {publications.map((pub) => {
+          {sortedPublications.map((pub) => {
             const sdgGoals = getPublicationSdgs(pub);
 
             return (

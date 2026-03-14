@@ -7,6 +7,17 @@ import { ArticleTable } from '../components/ArticleTable';
 import { ArrowLeft, Mail, Building2, Award, BookOpen, ExternalLink } from 'lucide-react';
 import { SDG_INFO, getContrastTextClass, getPublicationSdgs } from '../utils/sdgUtils';
 
+const TOPIC_STOP_WORDS = new Set([
+  'and', 'the', 'for', 'with', 'from', 'into', 'using', 'used', 'use', 'new', 'based', 'study', 'studies', 'analysis',
+  'role', 'impact', 'effects', 'effect', 'through', 'across', 'within', 'among', 'their', 'this', 'that', 'into',
+  'over', 'under', 'between', 'journal', 'review', 'international', 'management', 'research', 'business', 'policy',
+  'financial', 'finance', 'production', 'operations', 'accounting', 'approach', 'approaches', 'model', 'models',
+]);
+
+function toTitleCase(value: string): string {
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export const FacultyProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const facultyData = useMemo(() => getFacultyData(), []);
@@ -18,6 +29,55 @@ export const FacultyProfile: React.FC = () => {
     if (!faculty) return null;
     return findUIUCProfileUrl(faculty.name, faculty.department);
   }, [faculty]);
+
+  const researchProfileSummary = useMemo(() => {
+    const topicCounts = new Map<string, number>();
+    const journalCounts = new Map<string, number>();
+    const sdgCounts = new Map<number, number>();
+
+    publications.forEach((pub) => {
+      const combinedText = `${pub.title} ${pub.journal_title}`.toLowerCase();
+      const tokens = combinedText.match(/[a-z][a-z-]{3,}/g) ?? [];
+
+      tokens.forEach((token) => {
+        if (TOPIC_STOP_WORDS.has(token)) return;
+        topicCounts.set(token, (topicCounts.get(token) || 0) + 1);
+      });
+
+      if (pub.journal_title) {
+        journalCounts.set(pub.journal_title, (journalCounts.get(pub.journal_title) || 0) + 1);
+      }
+
+      getPublicationSdgs(pub).forEach((goal) => {
+        sdgCounts.set(goal, (sdgCounts.get(goal) || 0) + 1);
+      });
+    });
+
+    const primaryResearchAreas = Array.from(topicCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([topic]) => toTitleCase(topic));
+
+    const topJournals = Array.from(journalCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([journal]) => journal);
+
+    const sdgFocus = Array.from(sdgCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([goal]) => goal);
+
+    const mostRecentPublication = [...publications]
+      .sort((a, b) => b.publication_year - a.publication_year)[0] ?? null;
+
+    return {
+      primaryResearchAreas,
+      topJournals,
+      sdgFocus,
+      mostRecentPublication,
+    };
+  }, [publications]);
 
   const sdgDistribution = useMemo(() => {
     const counts = new Map<number, number>();
@@ -108,13 +168,39 @@ export const FacultyProfile: React.FC = () => {
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
             <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
               <Award className="w-4 h-4 text-orange-500" />
-              Research Focus & Expertise
+              Research Profile Summary
             </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Leading research in <strong>{faculty.topThemes.join(", ")}</strong>. 
-              Their work primarily focuses on the intersection of {faculty.topThemes[0]} and business strategy, 
-              contributing significantly to the understanding of sustainable practices in modern enterprises.
-            </p>
+            <ul className="space-y-2 text-sm text-gray-600 list-disc list-inside">
+              <li>
+                <span className="font-medium text-gray-900">Primary Research Areas:</span>{' '}
+                {researchProfileSummary.primaryResearchAreas.join(', ') || 'Not enough publication data'}
+              </li>
+              <li>
+                <span className="font-medium text-gray-900">SDG Focus:</span>{' '}
+                <span className="inline-flex flex-wrap gap-1 align-middle">
+                  {researchProfileSummary.sdgFocus.map((goal) => (
+                    <span
+                      key={goal}
+                      className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full ${getContrastTextClass(SDG_INFO[goal].color)}`}
+                      style={{ backgroundColor: SDG_INFO[goal].color }}
+                      title={`SDG ${goal} - ${SDG_INFO[goal].name}`}
+                    >
+                      {goal}
+                    </span>
+                  ))}
+                </span>
+              </li>
+              <li>
+                <span className="font-medium text-gray-900">Top Journals:</span>{' '}
+                {researchProfileSummary.topJournals.join(', ') || 'Not enough journal data'}
+              </li>
+              <li>
+                <span className="font-medium text-gray-900">Most Recent Publication:</span>{' '}
+                {researchProfileSummary.mostRecentPublication
+                  ? `${researchProfileSummary.mostRecentPublication.title} (${researchProfileSummary.mostRecentPublication.publication_year})`
+                  : 'No publication available'}
+              </li>
+            </ul>
           </div>
 
           <div className="flex gap-2">
@@ -134,7 +220,7 @@ export const FacultyProfile: React.FC = () => {
             <BookOpen className="w-5 h-5 text-gray-400" />
             Publications
           </h3>
-          <span className="text-sm text-gray-500">{filteredPublications.length} items found</span>
+          <span className="text-sm text-gray-500">{filteredPublications.length} publications</span>
         </div>
 
         <div className="px-6 py-4 border-b border-gray-100">
@@ -142,14 +228,23 @@ export const FacultyProfile: React.FC = () => {
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
             <div className="flex h-full w-full">
               {sdgDistribution.map((item) => (
-                <div
-                  key={item.goal}
-                  style={{ width: `${item.percent}%`, backgroundColor: SDG_INFO[item.goal].color }}
-                  title={`SDG ${item.goal} - ${SDG_INFO[item.goal].name} (${item.percent.toFixed(0)}%)`}
-                />
+                <div key={item.goal} className="group/segment relative h-full" style={{ width: `${item.percent}%` }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleSdg(item.goal)}
+                    className="h-full w-full"
+                    style={{ backgroundColor: SDG_INFO[item.goal].color }}
+                    aria-label={`SDG ${item.goal} - ${SDG_INFO[item.goal].name}`}
+                  />
+                  <div className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2 py-1 text-[11px] font-medium text-gray-700 shadow-md ring-1 ring-gray-200 group-hover/segment:visible">
+                    <div>SDG {item.goal} - {SDG_INFO[item.goal].name}</div>
+                    <div>{item.percent.toFixed(0)}% of publications</div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
+          <p className="mt-2 text-[11px] text-gray-500">(based on {publications.length} publications)</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {sdgDistribution.slice(0, 5).map((item) => (
               <span key={item.goal} className="text-[11px] text-gray-600">
@@ -169,7 +264,7 @@ export const FacultyProfile: React.FC = () => {
                   key={goal}
                   type="button"
                   onClick={() => toggleSdg(goal)}
-                  className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full transition-transform duration-150 hover:scale-105 hover:shadow-sm ${getContrastTextClass(color)} ${isActive ? 'ring-2 ring-gray-400 ring-offset-1' : ''}`}
+                  className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full transition-transform duration-150 hover:scale-105 hover:shadow-sm ${getContrastTextClass(color)} ${isActive ? 'scale-110 shadow-sm ring-2 ring-gray-400 ring-offset-1' : ''}`}
                   style={{ backgroundColor: color }}
                   title={`SDG ${goal} - ${SDG_INFO[goal].name}`}
                 >
