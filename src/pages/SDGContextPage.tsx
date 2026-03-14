@@ -41,7 +41,7 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
       : `Publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) in the ${meta.label.toLowerCase()} context.`;
 
   const sectionTitle =
-    context === 'student' ? 'Faculty SDG Publications' : `${meta.label} SDG Publications`;
+    context === 'student' ? 'Publications' : `${meta.label} SDG Publications`;
 
   if (!sdgMetric) {
     return <div className="text-sm text-gray-500">SDG goal not found.</div>;
