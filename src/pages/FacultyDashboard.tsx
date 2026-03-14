@@ -55,7 +55,7 @@ export const FacultyDashboard: React.FC = () => {
           value={leadershipMetrics.topDepartments[0]?.name || "N/A"} 
           trend="Leading" 
           trendDirection="up" 
-          valueClassName="text-xl truncate block w-full"
+          valueClassName="text-lg truncate block w-full"
         />
       </div>
 

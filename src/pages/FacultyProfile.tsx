@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getFacultyData } from '../utils/transformData';
 import { MOCK_PUBLICATIONS } from '../data/publications';
+import { findUIUCProfileUrl } from '../data/facultyProfiles';
 import { ArticleTable } from '../components/ArticleTable';
-import { ArrowLeft, Mail, Building2, Award, BookOpen } from 'lucide-react';
+import { ArrowLeft, Mail, Building2, Award, BookOpen, ExternalLink } from 'lucide-react';
 
 export const FacultyProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +12,10 @@ export const FacultyProfile: React.FC = () => {
   
   const faculty = facultyData.find(f => f.uuid === id);
   const publications = MOCK_PUBLICATIONS.filter(p => p.person_uuid === id);
+  const uiucProfileUrl = useMemo(() => {
+    if (!faculty) return null;
+    return findUIUCProfileUrl(faculty.name, faculty.department);
+  }, [faculty]);
 
   if (!faculty) {
     return <div>Faculty member not found</div>;
@@ -43,6 +48,18 @@ export const FacultyProfile: React.FC = () => {
                   {faculty.email}
                 </div>
               </div>
+
+              {uiucProfileUrl ? (
+                <a
+                  href={uiucProfileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 mb-4"
+                >
+                  View UIUC Faculty Profile
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              ) : null}
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Total Impact</div>
