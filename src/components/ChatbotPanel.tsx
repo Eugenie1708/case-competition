@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { MessageSquare, X, Send, Minus } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -137,6 +137,14 @@ export const ChatbotPanel: React.FC = () => {
 
   const facultyData = useMemo(() => getFacultyData(), []);
   const facultyNames = useMemo(() => facultyData.map((f) => normalize(f.name)), [facultyData]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && hasInteracted) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isOpen, hasInteracted]);
+
   const latestBotFollowUps = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i -= 1) {
       const msg = messages[i];
@@ -348,8 +356,7 @@ export const ChatbotPanel: React.FC = () => {
   };
 
   const handleMinimize = () => {
-    setExpanded(false);
-    setHasInteracted(false);
+    setIsOpen(false);
   };
 
   return (
@@ -450,6 +457,7 @@ export const ChatbotPanel: React.FC = () => {
                   </div>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
 
             <div className="p-3 bg-white border-t border-gray-100">
@@ -491,7 +499,7 @@ export const ChatbotPanel: React.FC = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setIsOpen(true)}
+          onClick={() => { setIsOpen(true); if (hasInteracted) setExpanded(true); }}
           className="fixed bottom-6 right-6 bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors z-50"
         >
           <MessageSquare className="w-6 h-6" />
