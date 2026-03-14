@@ -4,11 +4,13 @@ import { THEMES, getLeadershipMetrics, getSDGMetrics } from '../utils/transformD
 import { Lightbulb, TrendingUp, Filter } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ResourceCard } from '../components/ResourceCard';
+import { FilterDrawer } from '../components/FilterDrawer';
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { KPICard } from '../components/KPICard';
 
 export const IndustryDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(THEMES[0]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const leadershipMetrics = useMemo(() => getLeadershipMetrics(), []);
   const sdgMetrics = useMemo(() => getSDGMetrics(), []);
 
@@ -19,12 +21,16 @@ export const IndustryDashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
       <DashboardPageHeader
         title="Industry Insights"
         subtitle="Translating academic research into actionable business intelligence."
         sdgBasePath="/industry/sdg"
         filterButton={
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 shrink-0">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 shrink-0"
+          >
             <Filter className="w-4 h-4" />
             Filter
           </button>

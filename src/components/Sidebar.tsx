@@ -62,13 +62,6 @@ export const Sidebar: React.FC = () => {
           <p className="text-xs text-gray-700 whitespace-normal break-words leading-snug">
             Publication Dataset v2.4
           </p>
-
-          <div className="flex items-center gap-1 mt-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <span className="text-[10px] text-gray-500 whitespace-normal break-words">
-              Live & Connected
-            </span>
-          </div>
         </div>
       </div>
 

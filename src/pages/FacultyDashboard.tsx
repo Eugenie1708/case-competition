@@ -1,22 +1,28 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { getFacultyData, getLeadershipMetrics } from '../utils/transformData';
 import { KPICard } from '../components/KPICard';
 import { FacultyTable } from '../components/FacultyTable';
+import { FilterDrawer } from '../components/FilterDrawer';
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
 import { Filter } from 'lucide-react';
 
 export const FacultyDashboard: React.FC = () => {
   const facultyData = useMemo(() => getFacultyData(), []);
   const leadershipMetrics = useMemo(() => getLeadershipMetrics(), []);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <div className="space-y-6">
+      <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
       <DashboardPageHeader
         title="Faculty Dashboard"
         subtitle="Track research impact and identify collaborators."
         sdgBasePath="/faculty/sdg"
         filterButton={
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 shrink-0">
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 shrink-0"
+          >
             <Filter className="w-4 h-4" />
             Filter
           </button>
