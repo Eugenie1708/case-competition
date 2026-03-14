@@ -37,9 +37,9 @@ export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
         </div>
       </div>
 
-      <SDGIconRow />
-
       {actions ? <div className="flex flex-wrap items-center justify-end gap-3">{actions}</div> : null}
+
+      <SDGIconRow />
     </div>
   );
 };
