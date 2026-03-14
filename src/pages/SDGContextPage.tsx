@@ -32,7 +32,7 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
 
   const pageDescription =
     context === 'student'
-      ? 'Explore faculty research related to this SDG goal from a student perspective.'
+      ? 'This page helps students explore this SDG goal and identify faculty they can reach out to.'
       : `${meta.label} perspective: ${publications.length} publications mapped to this SDG.`;
 
   const sectionDescription =
