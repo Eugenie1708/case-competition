@@ -1,14 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getFacultyData } from '../utils/transformData';
 import { MOCK_PUBLICATIONS } from '../data/publications';
 import { findUIUCProfileUrl } from '../data/facultyProfiles';
 import { ArticleTable } from '../components/ArticleTable';
 import { ArrowLeft, Mail, Building2, Award, BookOpen, ExternalLink } from 'lucide-react';
+import { SDG_INFO, getContrastTextClass, getPublicationSdgs } from '../utils/sdgUtils';
 
 export const FacultyProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const facultyData = useMemo(() => getFacultyData(), []);
+  const [selectedSdgs, setSelectedSdgs] = useState<number[]>([]);
   
   const faculty = facultyData.find(f => f.uuid === id);
   const publications = MOCK_PUBLICATIONS.filter(p => p.person_uuid === id);
@@ -16,6 +18,41 @@ export const FacultyProfile: React.FC = () => {
     if (!faculty) return null;
     return findUIUCProfileUrl(faculty.name, faculty.department);
   }, [faculty]);
+
+  const sdgDistribution = useMemo(() => {
+    const counts = new Map<number, number>();
+
+    publications.forEach((pub) => {
+      getPublicationSdgs(pub).forEach((goal) => {
+        counts.set(goal, (counts.get(goal) || 0) + 1);
+      });
+    });
+
+    const total = Array.from(counts.values()).reduce((sum, count) => sum + count, 0);
+
+    return Array.from(counts.entries())
+      .map(([goal, count]) => ({
+        goal,
+        count,
+        percent: total > 0 ? (count / total) * 100 : 0,
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [publications]);
+
+  const filteredPublications = useMemo(() => {
+    if (selectedSdgs.length === 0) return publications;
+
+    return publications.filter((pub) => {
+      const pubSdgs = getPublicationSdgs(pub);
+      return selectedSdgs.some((goal) => pubSdgs.includes(goal));
+    });
+  }, [publications, selectedSdgs]);
+
+  const toggleSdg = (goal: number) => {
+    setSelectedSdgs((prev) =>
+      prev.includes(goal) ? prev.filter((id) => id !== goal) : [...prev, goal],
+    );
+  };
 
   if (!faculty) {
     return <div>Faculty member not found</div>;
@@ -97,9 +134,68 @@ export const FacultyProfile: React.FC = () => {
             <BookOpen className="w-5 h-5 text-gray-400" />
             Publications
           </h3>
-          <span className="text-sm text-gray-500">{publications.length} items found</span>
+          <span className="text-sm text-gray-500">{filteredPublications.length} items found</span>
         </div>
-        <ArticleTable publications={publications} />
+
+        <div className="px-6 py-4 border-b border-gray-100">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">SDG Research Distribution</p>
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="flex h-full w-full">
+              {sdgDistribution.map((item) => (
+                <div
+                  key={item.goal}
+                  style={{ width: `${item.percent}%`, backgroundColor: SDG_INFO[item.goal].color }}
+                  title={`SDG ${item.goal} - ${SDG_INFO[item.goal].name} (${item.percent.toFixed(0)}%)`}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {sdgDistribution.slice(0, 5).map((item) => (
+              <span key={item.goal} className="text-[11px] text-gray-600">
+                SDG {item.goal} {item.percent.toFixed(0)}%
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="px-6 py-4 border-b border-gray-100">
+          <div className="flex flex-wrap gap-1.5">
+            {Array.from({ length: 17 }, (_, i) => i + 1).map((goal) => {
+              const isActive = selectedSdgs.includes(goal);
+              const color = SDG_INFO[goal].color;
+              return (
+                <button
+                  key={goal}
+                  type="button"
+                  onClick={() => toggleSdg(goal)}
+                  className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full transition-transform duration-150 hover:scale-105 hover:shadow-sm ${getContrastTextClass(color)} ${isActive ? 'ring-2 ring-gray-400 ring-offset-1' : ''}`}
+                  style={{ backgroundColor: color }}
+                  title={`SDG ${goal} - ${SDG_INFO[goal].name}`}
+                >
+                  {goal}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {selectedSdgs.length > 0 ? (
+          <div className="px-6 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs text-gray-600">
+              Filtering by: {selectedSdgs.map((goal) => `SDG ${goal} - ${SDG_INFO[goal].name}`).join(', ')}
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedSdgs([])}
+              className="text-xs font-medium text-orange-600 hover:text-orange-700"
+            >
+              Clear Filter
+            </button>
+          </div>
+        ) : null}
+
+        <ArticleTable publications={filteredPublications} />
       </div>
     </div>
   );

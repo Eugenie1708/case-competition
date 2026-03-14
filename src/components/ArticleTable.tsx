@@ -2,49 +2,7 @@ import React from 'react';
 import { Publication } from '../data/publications';
 import { SourceConfidenceTag } from './SourceConfidenceTag';
 import { getConfidenceLevel } from '../utils/transformData';
-
-const SDG_COLORS: Record<number, string> = {
-  1: '#E5243B',
-  2: '#DDA63A',
-  3: '#4C9F38',
-  4: '#C5192D',
-  5: '#FF3A21',
-  6: '#26BDE2',
-  7: '#FCC30B',
-  8: '#A21942',
-  9: '#FD6925',
-  10: '#DD1367',
-  11: '#FD9D24',
-  12: '#BF8B2E',
-  13: '#3F7E44',
-  14: '#0A97D9',
-  15: '#56C02B',
-  16: '#00689D',
-  17: '#19486A',
-};
-
-function getContrastTextClass(hex: string): string {
-  const normalized = hex.replace('#', '');
-  const r = parseInt(normalized.slice(0, 2), 16);
-  const g = parseInt(normalized.slice(2, 4), 16);
-  const b = parseInt(normalized.slice(4, 6), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 160 ? 'text-gray-900' : 'text-white';
-}
-
-function getPublicationSdgs(pub: Publication): number[] {
-  if (pub.sdgs && pub.sdgs.length > 0) {
-    return Array.from(new Set(pub.sdgs.filter((id) => id >= 1 && id <= 17)));
-  }
-
-  return Array.from(
-    new Set(
-      [pub.top_1, pub.top_2, pub.top_3]
-        .map((value) => Math.trunc(Number.parseFloat(String(value))))
-        .filter((id) => Number.isFinite(id) && id >= 1 && id <= 17),
-    ),
-  );
-}
+import { SDG_INFO, getContrastTextClass, getPublicationSdgs } from '../utils/sdgUtils';
 
 interface ArticleTableProps {
   publications: Publication[];
@@ -84,16 +42,19 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({ publications }) => {
               <td className="py-3 px-4">
                 <div className="flex flex-wrap gap-1">
                   {sdgGoals.map((goal) => {
-                    const color = SDG_COLORS[goal];
+                    const color = SDG_INFO[goal].color;
                     return (
-                      <span
-                        key={goal}
-                        className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${getContrastTextClass(color)}`}
-                        style={{ backgroundColor: color }}
-                        title={`SDG ${goal}`}
-                      >
-                        {goal}
-                      </span>
+                      <div key={goal} className="group/goal relative inline-block">
+                        <span
+                          className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full transition-transform duration-150 group-hover/goal:scale-105 group-hover/goal:shadow-sm ${getContrastTextClass(color)}`}
+                          style={{ backgroundColor: color }}
+                        >
+                          {goal}
+                        </span>
+                        <div className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2 py-1 text-[11px] font-medium text-gray-700 shadow-md ring-1 ring-gray-200 group-hover/goal:visible">
+                          SDG {goal} - {SDG_INFO[goal].name}
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
