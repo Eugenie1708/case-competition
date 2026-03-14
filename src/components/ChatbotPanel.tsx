@@ -506,7 +506,7 @@ export const ChatbotPanel: React.FC = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => { setChatState('open'); if (hasInteracted) setExpanded(true); }}
-          className="fixed bottom-6 right-6 bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors z-50 relative"
+          className="fixed bottom-6 right-6 bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors z-50"
         >
           <MessageSquare className="w-6 h-6" />
           {chatState === 'minimized' && hasInteracted && (
