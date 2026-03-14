@@ -14,8 +14,23 @@ const TOPIC_STOP_WORDS = new Set([
   'financial', 'finance', 'production', 'operations', 'accounting', 'approach', 'approaches', 'model', 'models',
 ]);
 
+const DOMAIN_KEYWORDS: Array<{ domain: string; keywords: string[] }> = [
+  { domain: 'Machine Learning & Data Analytics', keywords: ['machine learning', 'algorithm', 'ai', 'analytics', 'classification', 'prediction', 'model', 'data'] },
+  { domain: 'Healthcare & Biomedical Research', keywords: ['health', 'cancer', 'clinical', 'biomedical', 'medical', 'diagnosis', 'mammography'] },
+  { domain: 'Sustainable Finance', keywords: ['finance', 'financial', 'investment', 'bank', 'bond', 'pricing', 'risk'] },
+  { domain: 'Supply Chain & Operations', keywords: ['supply chain', 'operations', 'production', 'logistics', 'manufacturing'] },
+  { domain: 'Governance & Policy', keywords: ['governance', 'policy', 'institution', 'regulation', 'leadership'] },
+  { domain: 'Innovation & Technology Strategy', keywords: ['innovation', 'technology', 'digital', 'blockchain', 'infrastructure'] },
+  { domain: 'Climate, Energy & Sustainability', keywords: ['climate', 'energy', 'sustainable', 'sustainability', 'environment', 'carbon'] },
+];
+
 function toTitleCase(value: string): string {
   return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function inferResearchDomains(text: string): string[] {
+  const normalized = text.toLowerCase();
+  return DOMAIN_KEYWORDS.filter(({ keywords }) => keywords.some((keyword) => normalized.includes(keyword))).map((item) => item.domain);
 }
 
 export const FacultyProfile: React.FC = () => {
@@ -39,6 +54,11 @@ export const FacultyProfile: React.FC = () => {
       const combinedText = `${pub.title} ${pub.journal_title}`.toLowerCase();
       const tokens = combinedText.match(/[a-z][a-z-]{3,}/g) ?? [];
 
+      const inferredDomains = inferResearchDomains(`${pub.title} ${pub.journal_title} ${pub.abstract}`);
+      inferredDomains.forEach((domain) => {
+        topicCounts.set(domain, (topicCounts.get(domain) || 0) + 2);
+      });
+
       tokens.forEach((token) => {
         if (TOPIC_STOP_WORDS.has(token)) return;
         topicCounts.set(token, (topicCounts.get(token) || 0) + 1);
@@ -56,7 +76,7 @@ export const FacultyProfile: React.FC = () => {
     const primaryResearchAreas = Array.from(topicCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
-      .map(([topic]) => toTitleCase(topic));
+      .map(([topic]) => (DOMAIN_KEYWORDS.some((item) => item.domain === topic) ? topic : toTitleCase(topic)));
 
     const topJournals = Array.from(journalCounts.entries())
       .sort((a, b) => b[1] - a[1])
@@ -66,7 +86,7 @@ export const FacultyProfile: React.FC = () => {
     const sdgFocus = Array.from(sdgCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4)
-      .map(([goal]) => goal);
+      .map(([goal, count]) => ({ goal, count }));
 
     const mostRecentPublication = [...publications]
       .sort((a, b) => b.publication_year - a.publication_year)[0] ?? null;
@@ -76,8 +96,57 @@ export const FacultyProfile: React.FC = () => {
       topJournals,
       sdgFocus,
       mostRecentPublication,
+      sdgCounts,
     };
   }, [publications]);
+
+  const publicationActivity = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const recentCount = publications.filter((pub) => pub.publication_year >= currentYear - 4).length;
+    return { total: filteredPublications.length, recentCount };
+  }, [filteredPublications, publications]);
+
+  const potentialCollaborators = useMemo(() => {
+    if (!faculty) return [] as Array<{ uuid: string; name: string; department: string; sharedSdgs: number[]; score: number }>;
+
+    const currentCounts = researchProfileSummary.sdgCounts;
+    const facultyById = new Map(facultyData.map((item) => [item.uuid, item]));
+
+    const publicationsByFaculty = new Map<string, typeof publications>();
+    MOCK_PUBLICATIONS.forEach((pub) => {
+      const arr = publicationsByFaculty.get(pub.person_uuid) ?? [];
+      arr.push(pub);
+      publicationsByFaculty.set(pub.person_uuid, arr);
+    });
+
+    return Array.from(publicationsByFaculty.entries())
+      .filter(([uuid]) => uuid !== faculty.uuid)
+      .map(([uuid, pubs]) => {
+        const otherCounts = new Map<number, number>();
+        pubs.forEach((pub) => {
+          getPublicationSdgs(pub).forEach((goal) => {
+            otherCounts.set(goal, (otherCounts.get(goal) || 0) + 1);
+          });
+        });
+
+        const sharedSdgs = Array.from(currentCounts.keys()).filter((goal) => otherCounts.has(goal));
+        const score = sharedSdgs.reduce((sum, goal) => {
+          return sum + Math.min(currentCounts.get(goal) || 0, otherCounts.get(goal) || 0);
+        }, 0);
+
+        const otherFaculty = facultyById.get(uuid);
+        return {
+          uuid,
+          name: otherFaculty?.name ?? pubs[0]?.author_name ?? 'Unknown Faculty',
+          department: otherFaculty?.department ?? pubs[0]?.department ?? 'Unknown Department',
+          sharedSdgs,
+          score,
+        };
+      })
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
+  }, [faculty, facultyData, researchProfileSummary.sdgCounts, publications]);
 
   const sdgDistribution = useMemo(() => {
     const counts = new Map<number, number>();
@@ -178,14 +247,19 @@ export const FacultyProfile: React.FC = () => {
               <li>
                 <span className="font-medium text-gray-900">SDG Focus:</span>{' '}
                 <span className="inline-flex flex-wrap gap-1 align-middle">
-                  {researchProfileSummary.sdgFocus.map((goal) => (
+                  {researchProfileSummary.sdgFocus.map(({ goal, count }) => (
                     <span
                       key={goal}
-                      className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full ${getContrastTextClass(SDG_INFO[goal].color)}`}
-                      style={{ backgroundColor: SDG_INFO[goal].color }}
+                      className="inline-flex items-center gap-1"
                       title={`SDG ${goal} - ${SDG_INFO[goal].name}`}
                     >
-                      {goal}
+                      <span
+                        className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full ${getContrastTextClass(SDG_INFO[goal].color)}`}
+                        style={{ backgroundColor: SDG_INFO[goal].color }}
+                      >
+                        {goal}
+                      </span>
+                      <span className="text-xs text-gray-600">{SDG_INFO[goal].name} - {count} publications</span>
                     </span>
                   ))}
                 </span>
@@ -213,6 +287,42 @@ export const FacultyProfile: React.FC = () => {
         </div>
       </div>
 
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-gray-100">
+          <h3 className="text-lg font-medium text-gray-900">Potential Collaborators</h3>
+          <p className="text-sm text-gray-500 mt-1">Researchers with overlapping SDG interests</p>
+        </div>
+        <div className="p-6 space-y-4">
+          {potentialCollaborators.length === 0 ? (
+            <p className="text-sm text-gray-500">No collaborator overlap found yet.</p>
+          ) : (
+            potentialCollaborators.map((person) => (
+              <div key={person.uuid} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <div className="text-sm font-medium text-gray-900">{person.name}</div>
+                  <div className="text-xs text-gray-500">{person.department}</div>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {person.sharedSdgs.map((goal) => (
+                      <span
+                        key={goal}
+                        className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full ${getContrastTextClass(SDG_INFO[goal].color)}`}
+                        style={{ backgroundColor: SDG_INFO[goal].color }}
+                        title={`SDG ${goal} - ${SDG_INFO[goal].name}`}
+                      >
+                        {goal}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <Link to={`/faculty/${person.uuid}`} className="text-sm font-medium text-orange-600 hover:text-orange-700">
+                  View Profile {'->'}
+                </Link>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
       {/* Publications Section */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -220,35 +330,45 @@ export const FacultyProfile: React.FC = () => {
             <BookOpen className="w-5 h-5 text-gray-400" />
             Publications
           </h3>
-          <span className="text-sm text-gray-500">{filteredPublications.length} publications</span>
+          <span className="text-sm text-gray-500 text-right">
+            {publicationActivity.total} publications
+            <br />
+            {publicationActivity.recentCount} in the last 5 years
+          </span>
         </div>
 
         <div className="px-6 py-4 border-b border-gray-100">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-2">SDG Research Distribution</p>
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
-            <div className="flex h-full w-full">
+          <div className="h-[22px] w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="flex h-full w-full gap-[2px]">
               {sdgDistribution.map((item) => (
                 <div key={item.goal} className="group/segment relative h-full" style={{ width: `${item.percent}%` }}>
                   <button
                     type="button"
                     onClick={() => toggleSdg(item.goal)}
-                    className="h-full w-full"
+                    className="h-full w-full cursor-pointer"
                     style={{ backgroundColor: SDG_INFO[item.goal].color }}
                     aria-label={`SDG ${item.goal} - ${SDG_INFO[item.goal].name}`}
                   />
                   <div className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white px-2 py-1 text-[11px] font-medium text-gray-700 shadow-md ring-1 ring-gray-200 group-hover/segment:visible">
                     <div>SDG {item.goal} - {SDG_INFO[item.goal].name}</div>
                     <div>{item.percent.toFixed(0)}% of publications</div>
+                    <div>{item.count} papers</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+          {sdgDistribution[0] ? (
+            <p className="mt-2 text-[11px] text-gray-600">
+              Most Active SDG: SDG {sdgDistribution[0].goal} - {SDG_INFO[sdgDistribution[0].goal].name}
+            </p>
+          ) : null}
           <p className="mt-2 text-[11px] text-gray-500">(based on {publications.length} publications)</p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-col gap-1">
             {sdgDistribution.slice(0, 5).map((item) => (
               <span key={item.goal} className="text-[11px] text-gray-600">
-                SDG {item.goal} {item.percent.toFixed(0)}%
+                ● SDG {item.goal} - {SDG_INFO[item.goal].name} ({item.percent.toFixed(0)}%)
               </span>
             ))}
           </div>

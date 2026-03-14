@@ -11,6 +11,17 @@ interface ArticleTableProps {
 type SortKey = 'year' | 'journal' | 'sdg';
 type SortDirection = 'asc' | 'desc';
 
+const HIGHLIGHT_JOURNALS = new Set([
+  'nature communications',
+  'cell',
+  'journal of machine learning research',
+  'production and operations management',
+]);
+
+function isHighlightedJournal(journalTitle: string): boolean {
+  return HIGHLIGHT_JOURNALS.has(journalTitle.trim().toLowerCase());
+}
+
 export const ArticleTable: React.FC<ArticleTableProps> = ({ publications }) => {
   const [sortKey, setSortKey] = useState<SortKey>('year');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -86,6 +97,7 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({ publications }) => {
               </td>
               <td className="py-3 px-4 text-sm text-gray-600">
                 {pub.journal_title}
+                {isHighlightedJournal(pub.journal_title) ? ' ⭐' : ''}
               </td>
               <td className="py-3 px-4">
                 <div className="flex flex-wrap gap-1">
