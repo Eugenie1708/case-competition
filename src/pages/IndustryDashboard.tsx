@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { MOCK_PUBLICATIONS } from '../data/publications';
-import { THEMES } from '../utils/transformData';
-import { Lightbulb, TrendingUp } from 'lucide-react';
+import { THEMES, getLeadershipMetrics, getSDGMetrics } from '../utils/transformData';
+import { Lightbulb, TrendingUp, Filter } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ResourceCard } from '../components/ResourceCard';
 import { DashboardPageHeader } from '../components/DashboardPageHeader';
+import { KPICard } from '../components/KPICard';
 
 export const IndustryDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(THEMES[0]);
+  const leadershipMetrics = useMemo(() => getLeadershipMetrics(), []);
+  const sdgMetrics = useMemo(() => getSDGMetrics(), []);
 
   // Filter publications for the active theme to derive insights
   const themePubs = MOCK_PUBLICATIONS.filter(p => 
@@ -21,6 +24,28 @@ export const IndustryDashboard: React.FC = () => {
         subtitle="Translating academic research into actionable business intelligence."
         sdgBasePath="/industry/sdg"
       />
+
+      {/* KPI Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <KPICard 
+          title="Total Publications" 
+          value={leadershipMetrics.totalPublications} 
+          trend="+7%" 
+          trendDirection="up" 
+        />
+        <KPICard 
+          title="Industry-Relevant Themes" 
+          value={THEMES.length} 
+          trend="Active" 
+          trendDirection="neutral" 
+        />
+        <KPICard 
+          title="Top SDG" 
+          value={sdgMetrics[0]?.shortName || "N/A"} 
+          trend="High Priority" 
+          trendDirection="up" 
+        />
+      </div>
 
       {/* Tabs */}
       <div className="flex overflow-x-auto pb-2 gap-2 border-b border-gray-200">
@@ -38,6 +63,13 @@ export const IndustryDashboard: React.FC = () => {
             {theme}
           </button>
         ))}
+      </div>
+
+      <div className="flex justify-end">
+        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
+          <Filter className="w-4 h-4" />
+          Filter
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
