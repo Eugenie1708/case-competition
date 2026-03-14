@@ -17,13 +17,13 @@ export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0 flex-1">
           <h2 className="text-2xl font-serif font-medium text-gray-900">{title}</h2>
           <p className="text-gray-500 mt-1">{subtitle}</p>
         </div>
 
-        <div className="flex w-full max-w-md items-center justify-end gap-4 self-start xl:min-w-[24rem]">
+        <div className="flex w-full max-w-md items-center justify-end gap-4 self-start md:min-w-[24rem] md:w-auto">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
