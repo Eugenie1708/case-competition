@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, ChevronRight } from 'lucide-react';
 import { Faculty } from '../utils/transformData';
+import { SDG_INFO, getContrastTextClass } from '../utils/sdgUtils';
 
 interface FacultyTableProps {
   facultyList: Faculty[];
@@ -20,6 +21,7 @@ export const FacultyTable: React.FC<FacultyTableProps> = ({ facultyList }) => {
             <th className="py-3 px-6 text-center">Total Publications</th>
             <th className="py-3 px-6 text-center">SDG Publications</th>
             <th className="py-3 px-6">SDG Research Themes</th>
+            <th className="py-3 px-6">SDG Goals</th>
             <th className="py-3 px-6"></th>
           </tr>
         </thead>
@@ -58,6 +60,24 @@ export const FacultyTable: React.FC<FacultyTableProps> = ({ facultyList }) => {
                       {theme}
                     </span>
                   ))}
+                </div>
+              </td>
+              <td className="py-4 px-6">
+                <div className="flex flex-wrap gap-1">
+                  {faculty.topSdgs.map((sdgId) => {
+                    const sdg = SDG_INFO[sdgId];
+                    if (!sdg) return null;
+                    return (
+                      <span
+                        key={sdgId}
+                        title={`SDG ${sdgId} — ${sdg.name}`}
+                        className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${getContrastTextClass(sdg.color)}`}
+                        style={{ backgroundColor: sdg.color }}
+                      >
+                        SDG {sdgId}
+                      </span>
+                    );
+                  })}
                 </div>
               </td>
               <td className="py-4 px-6 text-right">

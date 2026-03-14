@@ -8,6 +8,7 @@ export interface Faculty {
   totalPublications: number;
   sustainabilityPublications: number;
   topThemes: string[];
+  topSdgs: number[];
   active: boolean;
 }
 
@@ -129,6 +130,7 @@ export const getSDGNews = (sdgId: number): NewsItem[] => {
 
 export const getFacultyData = (): Faculty[] => {
   const facultyMap = new Map<string, Faculty>();
+  const facultySdgCounts = new Map<string, Map<number, number>>();
 
   MOCK_PUBLICATIONS.forEach(pub => {
     if (!facultyMap.has(pub.person_uuid)) {
@@ -140,19 +142,33 @@ export const getFacultyData = (): Faculty[] => {
         totalPublications: 0,
         sustainabilityPublications: 0,
         topThemes: [],
+        topSdgs: [],
         active: pub.active
       });
+      facultySdgCounts.set(pub.person_uuid, new Map());
     }
 
     const faculty = facultyMap.get(pub.person_uuid)!;
-    faculty.totalPublications += 1; // Assuming all mock pubs are relevant for this demo
+    faculty.totalPublications += 1;
     if (pub.is_sustain) {
       faculty.sustainabilityPublications += 1;
     }
-    
-    // Simple theme counting for faculty
+
     const themes = [pub.top_1, pub.top_2, pub.top_3].filter(t => THEMES.includes(t));
     faculty.topThemes = [...new Set([...faculty.topThemes, ...themes])].slice(0, 3);
+
+    const sdgMap = facultySdgCounts.get(pub.person_uuid)!;
+    (pub.sdgs ?? []).forEach(sdgId => {
+      sdgMap.set(sdgId, (sdgMap.get(sdgId) ?? 0) + 1);
+    });
+  });
+
+  facultyMap.forEach((faculty, uuid) => {
+    const sdgMap = facultySdgCounts.get(uuid)!;
+    faculty.topSdgs = Array.from(sdgMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([sdgId]) => sdgId);
   });
 
   return Array.from(facultyMap.values());
