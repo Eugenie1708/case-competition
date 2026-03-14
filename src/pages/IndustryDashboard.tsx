@@ -23,6 +23,12 @@ export const IndustryDashboard: React.FC = () => {
         title="Industry Insights"
         subtitle="Translating academic research into actionable business intelligence."
         sdgBasePath="/industry/sdg"
+        filterButton={
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 shrink-0">
+            <Filter className="w-4 h-4" />
+            Filter
+          </button>
+        }
       />
 
       {/* KPI Row */}
@@ -63,13 +69,6 @@ export const IndustryDashboard: React.FC = () => {
             {theme}
           </button>
         ))}
-      </div>
-
-      <div className="flex justify-end">
-        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
-          <Filter className="w-4 h-4" />
-          Filter
-        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

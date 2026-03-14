@@ -23,6 +23,15 @@ export const StudentDashboard: React.FC = () => {
         title="Student Dashboard"
         subtitle="Explore research themes and find faculty mentors."
         sdgBasePath="/student/sdg"
+        filterButton={
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 shrink-0"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+          </button>
+        }
       />
 
       <FilterDrawer isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
@@ -49,17 +58,7 @@ export const StudentDashboard: React.FC = () => {
         />
       </div>
 
-      <div className="flex justify-end">
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50"
-        >
-          <Filter className="w-4 h-4" />
-          Filters
-        </button>
-      </div>
-
-      {/* Main Charts Row */}
+      {/* Main Charts Row */
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* SDG Chart */}
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
