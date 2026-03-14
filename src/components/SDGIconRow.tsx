@@ -3,14 +3,18 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { SDGS } from '../utils/transformData';
 
-export const SDGIconRow: React.FC = () => {
+interface SDGIconRowProps {
+  basePath?: string;
+}
+
+export const SDGIconRow: React.FC<SDGIconRowProps> = ({ basePath = '/sdg' }) => {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white p-2 shadow-sm">
       <div className="grid gap-1.5" style={{ gridTemplateColumns: 'repeat(17, minmax(0, 1fr))' }}>
         {SDGS.map((sdg) => (
           <NavLink
             key={sdg.id}
-            to={`/sdg/${sdg.id}`}
+            to={`${basePath}/${sdg.id}`}
             title={`Goal ${sdg.id}: ${sdg.name}`}
             className={({ isActive }) =>
               cn(

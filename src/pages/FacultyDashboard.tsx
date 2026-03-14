@@ -22,6 +22,7 @@ export const FacultyDashboard: React.FC = () => {
       <DashboardPageHeader
         title="Faculty Dashboard"
         subtitle="Track research impact and identify collaborators."
+        sdgBasePath="/faculty/sdg"
         actions={
           <>
             <div className="relative">

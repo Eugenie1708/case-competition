@@ -6,12 +6,14 @@ interface DashboardPageHeaderProps {
   title: string;
   subtitle: string;
   actions?: React.ReactNode;
+  sdgBasePath?: string;
 }
 
 export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
   title,
   subtitle,
   actions,
+  sdgBasePath = '/sdg',
 }) => {
   return (
     <div className="space-y-4">
@@ -39,7 +41,7 @@ export const DashboardPageHeader: React.FC<DashboardPageHeaderProps> = ({
 
       {actions ? <div className="flex flex-wrap items-center justify-end gap-3">{actions}</div> : null}
 
-      <SDGIconRow />
+      <SDGIconRow basePath={sdgBasePath} />
     </div>
   );
 };

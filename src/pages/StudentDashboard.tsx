@@ -22,6 +22,7 @@ export const StudentDashboard: React.FC = () => {
       <DashboardPageHeader
         title="Student Dashboard"
         subtitle="Explore research themes and find faculty mentors."
+        sdgBasePath="/student/sdg"
         actions={
           <button
             onClick={() => setIsFilterOpen(true)}
@@ -73,7 +74,7 @@ export const StudentDashboard: React.FC = () => {
                 margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
                 onClick={(data: any) => {
                   if (data && data.activePayload && data.activePayload[0]) {
-                    navigate(`/sdg/${data.activePayload[0].payload.id}`);
+                    navigate(`/student/sdg/${data.activePayload[0].payload.id}`);
                   }
                 }}
                 className="cursor-pointer"

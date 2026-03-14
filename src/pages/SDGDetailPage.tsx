@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
-import { SDGPublicationTable } from '../components/SDGPublicationTable';
+import { ArrowLeft, TrendingUp, BookOpen, Building2 } from 'lucide-react';
+import { Link, NavLink, useParams } from 'react-router-dom';
 import { SDGIconRow } from '../components/SDGIconRow';
 import { getSDGMetrics } from '../utils/transformData';
 
@@ -39,7 +38,7 @@ export const SDGDetailPage: React.FC = () => {
             </div>
             <h1 className="text-3xl font-serif font-medium text-gray-900">{sdgMetric.name}</h1>
             <p className="mt-2 text-sm text-gray-500">
-              {publications.length} sustainability publications mapped to this SDG goal.
+              General SDG overview for Goal {sdgMetric.id} with trend-level context across dashboards.
             </p>
           </div>
 
@@ -52,16 +51,75 @@ export const SDGDetailPage: React.FC = () => {
             />
           </div>
         </div>
+
+        <div className="mt-5 grid grid-cols-1 gap-3 border-t border-gray-100 pt-4 sm:grid-cols-3">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <BookOpen className="h-3.5 w-3.5" />
+              Publications
+            </div>
+            <div className="text-xl font-semibold text-gray-900">{publications.length}</div>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <Building2 className="h-3.5 w-3.5" />
+              Departments
+            </div>
+            <div className="text-xl font-semibold text-gray-900">
+              {new Set(publications.map((pub) => pub.department)).size}
+            </div>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <TrendingUp className="h-3.5 w-3.5" />
+              Latest Year
+            </div>
+            <div className="text-xl font-semibold text-gray-900">
+              {publications[0]?.publication_year ?? 'N/A'}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
+          <NavLink
+            to={`/sdg/${sdgMetric.id}`}
+            className={({ isActive }) =>
+              `rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                isActive ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`
+            }
+          >
+            Overview
+          </NavLink>
+          <NavLink
+            to={`/student/sdg/${sdgMetric.id}`}
+            className="rounded-lg bg-orange-50 px-3 py-1.5 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-100"
+          >
+            Student
+          </NavLink>
+          <NavLink
+            to={`/faculty/sdg/${sdgMetric.id}`}
+            className="rounded-lg bg-orange-50 px-3 py-1.5 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-100"
+          >
+            Faculty
+          </NavLink>
+          <NavLink
+            to={`/industry/sdg/${sdgMetric.id}`}
+            className="rounded-lg bg-orange-50 px-3 py-1.5 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-100"
+          >
+            Industry
+          </NavLink>
+        </div>
       </div>
 
-      <SDGIconRow />
+      <SDGIconRow basePath="/sdg" />
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 p-6">
-          <h2 className="text-lg font-medium text-gray-900">Goal {sdgMetric.id} Publications</h2>
-          <p className="mt-1 text-sm text-gray-500">Filtered dynamically from the sustainability publication dataset.</p>
-        </div>
-        <SDGPublicationTable publications={publications} />
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-medium text-gray-900">Overview Notes</h2>
+        <p className="mt-2 text-sm leading-relaxed text-gray-600">
+          Use the Student, Faculty, or Industry tabs above to open the contextual SDG article pages.
+          Each contextual page keeps the same goal while showing perspective-specific navigation and the full publication table.
+        </p>
       </div>
     </div>
   );

@@ -19,6 +19,7 @@ export const IndustryDashboard: React.FC = () => {
       <DashboardPageHeader
         title="Industry Insights"
         subtitle="Translating academic research into actionable business intelligence."
+        sdgBasePath="/industry/sdg"
       />
 
       {/* Tabs */}
