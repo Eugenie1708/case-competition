@@ -30,6 +30,16 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
     return [...(sdgMetric?.publications ?? [])].sort((a, b) => b.publication_year - a.publication_year);
   }, [sdgMetric]);
 
+  const pageDescription =
+    context === 'student'
+      ? 'Explore faculty research related to this SDG goal from a student perspective.'
+      : `${meta.label} perspective: ${publications.length} publications mapped to this SDG.`;
+
+  const sectionDescription =
+    context === 'student'
+      ? `Faculty publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) to help students discover research topics.`
+      : `Publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) in the ${meta.label.toLowerCase()} context.`;
+
   if (!sdgMetric) {
     return <div className="text-sm text-gray-500">SDG goal not found.</div>;
   }
@@ -55,7 +65,7 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
             </div>
             <h1 className="text-3xl font-serif font-medium text-gray-900">{sdgMetric.name}</h1>
             <p className="mt-2 text-sm text-gray-500">
-              {meta.label} perspective: {publications.length} publications mapped to this SDG.
+              {pageDescription}
             </p>
           </div>
 
@@ -105,7 +115,7 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
         <div className="border-b border-gray-100 p-6">
           <h2 className="text-lg font-medium text-gray-900">{meta.label} SDG Publications</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Publications for Goal {sdgMetric.id} ({sdgMetric.shortName}) in the {meta.label.toLowerCase()} context.
+            {sectionDescription}
           </p>
         </div>
         <SDGPublicationTable publications={publications} />
