@@ -58,7 +58,7 @@ export const StudentDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Main Charts Row */
+      {/* Main Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* SDG Chart */}
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
