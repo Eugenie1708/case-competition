@@ -127,8 +127,10 @@ function inferPersona(query: string, selectedPersona: Persona | null): Persona {
   return 'student';
 }
 
+type ChatState = 'closed' | 'minimized' | 'open';
+
 export const ChatbotPanel: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [chatState, setChatState] = useState<ChatState>('closed');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
@@ -140,10 +142,10 @@ export const ChatbotPanel: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isOpen && hasInteracted) {
+    if (chatState === 'open' && hasInteracted) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isOpen, hasInteracted]);
+  }, [messages, chatState, hasInteracted]);
 
   const latestBotFollowUps = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i -= 1) {
@@ -356,13 +358,17 @@ export const ChatbotPanel: React.FC = () => {
   };
 
   const handleMinimize = () => {
-    setIsOpen(false);
+    setChatState('minimized');
+  };
+
+  const handleClose = () => {
+    setChatState('closed');
   };
 
   return (
     <>
       <AnimatePresence>
-        {isOpen && (
+        {chatState === 'open' && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -380,7 +386,7 @@ export const ChatbotPanel: React.FC = () => {
                 <button onClick={handleMinimize} className="hover:bg-orange-700 p-1 rounded" title="Minimize">
                   <Minus className="w-4 h-4" />
                 </button>
-                <button onClick={() => setIsOpen(false)} className="hover:bg-orange-700 p-1 rounded" title="Close">
+                <button onClick={handleClose} className="hover:bg-orange-700 p-1 rounded" title="Close">  
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -495,14 +501,17 @@ export const ChatbotPanel: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {!isOpen && (
+      {chatState !== 'open' && (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => { setIsOpen(true); if (hasInteracted) setExpanded(true); }}
-          className="fixed bottom-6 right-6 bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors z-50"
+          onClick={() => { setChatState('open'); if (hasInteracted) setExpanded(true); }}
+          className="fixed bottom-6 right-6 bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors z-50 relative"
         >
           <MessageSquare className="w-6 h-6" />
+          {chatState === 'minimized' && hasInteracted && (
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-white rounded-full border-2 border-orange-600" />
+          )}
         </motion.button>
       )}
     </>
