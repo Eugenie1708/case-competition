@@ -100,12 +100,6 @@ export const FacultyProfile: React.FC = () => {
     };
   }, [publications]);
 
-  const publicationActivity = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    const recentCount = publications.filter((pub) => pub.publication_year >= currentYear - 4).length;
-    return { total: filteredPublications.length, recentCount };
-  }, [filteredPublications, publications]);
-
   const potentialCollaborators = useMemo(() => {
     if (!faculty) return [] as Array<{ uuid: string; name: string; department: string; sharedSdgs: number[]; score: number }>;
 
@@ -176,6 +170,12 @@ export const FacultyProfile: React.FC = () => {
       return selectedSdgs.some((goal) => pubSdgs.includes(goal));
     });
   }, [publications, selectedSdgs]);
+
+  const publicationActivity = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const recentCount = publications.filter((pub) => pub.publication_year >= currentYear - 4).length;
+    return { total: filteredPublications.length, recentCount };
+  }, [filteredPublications, publications]);
 
   const toggleSdg = (goal: number) => {
     setSelectedSdgs((prev) =>
