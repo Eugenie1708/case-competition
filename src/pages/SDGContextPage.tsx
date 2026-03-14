@@ -40,6 +40,9 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
       ? `Faculty publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) to help students discover research topics.`
       : `Publications for Goal ${sdgMetric?.id ?? ''} (${sdgMetric?.shortName ?? ''}) in the ${meta.label.toLowerCase()} context.`;
 
+  const sectionTitle =
+    context === 'student' ? 'Faculty SDG Publications' : `${meta.label} SDG Publications`;
+
   if (!sdgMetric) {
     return <div className="text-sm text-gray-500">SDG goal not found.</div>;
   }
@@ -113,7 +116,7 @@ export const SDGContextPage: React.FC<SDGContextPageProps> = ({ context }) => {
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-6">
-          <h2 className="text-lg font-medium text-gray-900">{meta.label} SDG Publications</h2>
+          <h2 className="text-lg font-medium text-gray-900">{sectionTitle}</h2>
           <p className="mt-1 text-sm text-gray-500">
             {sectionDescription}
           </p>
