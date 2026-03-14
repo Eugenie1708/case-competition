@@ -5,9 +5,10 @@ import { Publication } from '../data/publications';
 interface ResourceCardProps {
   publication: Publication;
   type?: string;
+  businessRelevance?: string;
 }
 
-export const ResourceCard: React.FC<ResourceCardProps> = ({ publication, type = "Brief" }) => {
+export const ResourceCard: React.FC<ResourceCardProps> = ({ publication, type = "Brief", businessRelevance }) => {
   return (
     <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:border-orange-200 transition-colors group cursor-pointer h-full flex flex-col">
       <div className="flex justify-between items-start mb-3">
@@ -20,6 +21,11 @@ export const ResourceCard: React.FC<ResourceCardProps> = ({ publication, type = 
       <p className="text-xs text-gray-500 mb-3 line-clamp-2">
         {publication.abstract}
       </p>
+      {businessRelevance ? (
+        <div className="text-xs text-gray-600 mb-3">
+          <span className="font-medium text-gray-800">Business Relevance:</span> {businessRelevance}
+        </div>
+      ) : null}
       <div className="flex items-center gap-2 text-xs text-gray-400 mt-auto">
         <FileText className="w-3 h-3" />
         <span>Source: {publication.journal_title}</span>

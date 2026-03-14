@@ -36,7 +36,7 @@ export const SDGIconRow: React.FC<SDGIconRowProps> = ({ basePath = '/sdg', busin
             {businessTooltipTopicsBySdg?.[sdg.id] ? (
               <div className="pointer-events-none invisible absolute left-1/2 top-full z-30 mt-2 w-52 -translate-x-1/2 rounded-md bg-white p-2 text-left shadow-md ring-1 ring-gray-200 group-hover:visible">
                 <div className="text-[11px] font-semibold text-gray-800">SDG {sdg.id} - {sdg.name}</div>
-                <div className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">Relevant Business Topics</div>
+                <div className="mt-1 text-[10px] font-medium uppercase tracking-wide text-gray-500">Relevant Business Themes</div>
                 <ul className="mt-1 space-y-0.5 text-[11px] text-gray-600">
                   {businessTooltipTopicsBySdg[sdg.id]!.map((topic) => (
                     <li key={topic}>• {topic}</li>
