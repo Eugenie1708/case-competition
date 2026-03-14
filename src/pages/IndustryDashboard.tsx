@@ -314,20 +314,6 @@ export const IndustryDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div>
-            <h3 className="font-medium text-gray-900">Evidence Base</h3>
-            <div className="mt-2 text-sm text-gray-600">
-              <div>This strategy framework is supported by:</div>
-              <div>• {evidenceSummary.academicPublications} academic publications</div>
-              <div>• {evidenceSummary.collaborationStudies} industry collaboration studies</div>
-              <div>• {evidenceSummary.policyResearchReports} policy research reports</div>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {themePubs.map((pub) => (
-              <ResourceCard key={pub.article_uuid} publication={pub} type="Brief" businessRelevance={themeContent.businessRelevance} />
-            ))}
-          </div>
         </div>
 
         {/* Sidebar Column */}
