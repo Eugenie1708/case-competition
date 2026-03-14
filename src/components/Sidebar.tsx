@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { GraduationCap, Users, Briefcase, BarChart3, Home } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export const Sidebar: React.FC = () => {
+  const [latestUpdate, setLatestUpdate] = useState(() => new Date());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setLatestUpdate(new Date());
+    }, 2 * 60 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const latestUpdateLabel = useMemo(() => {
+    return latestUpdate.toLocaleString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }, [latestUpdate]);
+
   const navItems = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/student", icon: GraduationCap, label: "Student" },
@@ -61,6 +81,10 @@ export const Sidebar: React.FC = () => {
 
           <p className="text-xs text-gray-700 whitespace-normal break-words leading-snug">
             Publication Dataset v2.4
+          </p>
+
+          <p className="mt-2 text-[10px] text-gray-500 whitespace-normal break-words leading-snug">
+            Latest update: {latestUpdateLabel}
           </p>
         </div>
       </div>
