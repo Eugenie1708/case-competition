@@ -344,7 +344,6 @@ export const MarketingLanding: React.FC = () => {
           <nav className="hidden items-center gap-4 md:flex">
             <a href="#problem" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Problem</a>
             <a href="#intelligence" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Intelligence</a>
-            <a href="#inside" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Inside</a>
             <a href="#matcher" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">AI Matcher</a>
           </nav>
 
