@@ -207,6 +207,25 @@ export const MarketingLanding: React.FC = () => {
     [selectedSdgPublications],
   );
 
+  const sdg3Pubs = useMemo(
+    () => publications.filter((pub) => (pub.sdgs ?? []).includes(3)).slice(0, 3),
+    [publications],
+  );
+
+  const sdg3Faculty = useMemo(() => {
+    const seen = new Set<string>();
+    const result: Array<{ name: string; uuid: string }> = [];
+    publications
+      .filter((pub) => (pub.sdgs ?? []).includes(3))
+      .forEach((pub) => {
+        if (!seen.has(pub.person_uuid)) {
+          seen.add(pub.person_uuid);
+          result.push({ name: pub.author_name, uuid: pub.person_uuid });
+        }
+      });
+    return result.slice(0, 3);
+  }, [publications]);
+
   const topSdgBars = useMemo(() => {
     const counts = new Map<number, number>();
 
@@ -514,37 +533,33 @@ export const MarketingLanding: React.FC = () => {
             </p>
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">click on the sdgs goal real case</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {SDGS.slice(0, 8).map((sdg) => (
-                  <button
-                    key={sdg.id}
-                    type="button"
-                    onClick={() => setSelectedSdgId(sdg.id)}
-                    className={`rounded-full border px-3 py-1 text-xs transition-all ${selectedSdgId === sdg.id ? 'border-orange-300 bg-orange-400/20 text-orange-100' : 'border-white/20 bg-white/5 text-slate-200 hover:bg-white/10'}`}
-                  >
-                    SDG {sdg.id}
-                  </button>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-400/30 bg-green-400/10 px-3 py-1">
+                <span className="h-2 w-2 rounded-full bg-green-400" />
+                <span className="text-xs font-medium text-green-300">SDG 3 — Good Health and Well-being</span>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="text-xs text-slate-400">Research Topics</p>
+                {sdg3Pubs.map((pub) => (
+                  <p key={pub.article_uuid} className="mt-2 text-sm leading-snug text-white">
+                    {pub.title}
+                  </p>
                 ))}
               </div>
 
-              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-                  <p className="text-xs text-slate-300">Research Topics</p>
-                  {selectedSdgPublications.slice(0, 2).map((pub) => (
-                    <p key={pub.article_uuid} className="mt-2 text-sm text-white">
-                      {pub.title}
-                    </p>
-                  ))}
-                </div>
-                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
-                  <p className="text-xs text-slate-300">Faculty Working On This</p>
-                  {selectedSdgFaculty.map((name) => (
-                    <p key={name} className="mt-2 text-sm text-white">
-                      {name}
-                    </p>
-                  ))}
-                </div>
+              <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="text-xs text-slate-400">Faculty Working On This</p>
+                {sdg3Faculty.map((f) => (
+                  <div key={f.uuid} className="mt-2 flex items-center justify-between">
+                    <p className="text-sm text-white">{f.name}</p>
+                    <Link
+                      to={`/faculty/${f.uuid}`}
+                      className="ml-3 shrink-0 rounded-full border border-orange-400/40 bg-orange-400/10 px-2.5 py-0.5 text-xs text-orange-300 transition-colors hover:bg-orange-400/20"
+                    >
+                      Explore Faculty →
+                    </Link>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
