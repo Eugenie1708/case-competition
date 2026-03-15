@@ -592,48 +592,6 @@ export const MarketingLanding: React.FC = () => {
           </motion.div>
         </section>
 
-        <section id="inside">
-          <h2 className="text-3xl font-semibold text-white md:text-5xl">Inside the Platform</h2>
-          <p className="mt-3 text-slate-300">Real previews from current platform data.</p>
-
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Sustainability Dashboard</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {(mappedSdgs.length > 0 ? mappedSdgs : SDGS.slice(0, 3)).map((sdg) => (
-                  <span key={sdg.id} className="rounded-full border border-emerald-300/40 bg-emerald-400/15 px-3 py-1 text-xs text-emerald-100 transition-all hover:scale-105 hover:bg-emerald-400/25">
-                    SDG {sdg.id}
-                  </span>
-                ))}
-              </div>
-            </motion.article>
-
-            <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Faculty Profiles</p>
-              {[featuredFaculty, exampleB?.author_name, exampleC?.author_name]
-                .filter(Boolean)
-                .slice(0, 3)
-                .map((name) => (
-                  <motion.div key={name} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="mt-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2">
-                    <p className="text-sm text-white">{name}</p>
-                    <p className="text-xs text-slate-300">{featuredDepartment}</p>
-                  </motion.div>
-                ))}
-            </motion.article>
-
-            <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Research Explorer</p>
-              {[exampleA?.title, exampleB?.title, exampleC?.title]
-                .filter(Boolean)
-                .map((title) => (
-                  <motion.div key={title} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white">
-                    {title}
-                  </motion.div>
-                ))}
-            </motion.article>
-          </div>
-        </section>
-
         <section id="matcher" className="rounded-3xl border border-orange-300/30 bg-gradient-to-br from-[#2B1208] via-[#1E1324] to-[#121A2B] p-8 md:p-10">
           <h2 className="text-3xl font-semibold text-white md:text-5xl">AI Faculty Matcher</h2>
           <p className="mt-4 max-w-3xl text-slate-300">
