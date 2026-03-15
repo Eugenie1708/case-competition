@@ -9,10 +9,12 @@ import { StudentDetail } from './pages/StudentDetail';
 import { FacultyProfile } from './pages/FacultyProfile';
 import { SDGDetailPage } from './pages/SDGDetailPage';
 import { SDGContextPage } from './pages/SDGContextPage';
+import { MarketingLanding } from './pages/MarketingLanding';
 
 export default function App() {
   return (
     <Routes>
+      <Route path="/marketing" element={<MarketingLanding />} />
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="sdg/:goalId" element={<SDGDetailPage />} />
