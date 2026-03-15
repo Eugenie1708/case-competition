@@ -16,6 +16,9 @@ import {
   Check,
   Brain,
   LineChart,
+  Database,
+  Zap,
+  ShieldCheck,
 } from 'lucide-react';
 import { MOCK_PUBLICATIONS } from '../data/publications';
 import { SDGS } from '../utils/transformData';
@@ -58,6 +61,7 @@ export const MarketingLanding: React.FC = () => {
   const [selectedSdgId, setSelectedSdgId] = useState<number>(13);
   const [hoveredIntelligenceCard, setHoveredIntelligenceCard] = useState<string>('research');
   const [typedText, setTypedText] = useState('');
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const typingSource = 'CEO risk preference and investing in R and D';
 
@@ -82,6 +86,19 @@ export const MarketingLanding: React.FC = () => {
     }, 60);
 
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = total > 0 ? (window.scrollY / total) * 100 : 0;
+      setScrollProgress(Math.max(0, Math.min(progress, 100)));
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const graphNodes: GraphNode[] = useMemo(
@@ -276,8 +293,51 @@ export const MarketingLanding: React.FC = () => {
     .filter((sdg): sdg is (typeof SDGS)[number] => Boolean(sdg))
     .slice(0, 3);
 
+  const uniqueFacultyCount = useMemo(
+    () => new Set(publications.map((pub) => pub.author_name)).size,
+    [publications],
+  );
+
+  const activeSdgCount = useMemo(() => {
+    const ids = new Set<number>();
+    publications.forEach((pub) => {
+      (pub.sdgs ?? []).forEach((id) => ids.add(id));
+    });
+    return ids.size;
+  }, [publications]);
+
   return (
     <div className="min-h-screen bg-[#050B1A] text-slate-100">
+      <div className="fixed left-0 right-0 top-0 z-50 h-1 bg-white/5">
+        <motion.div
+          className="h-full bg-gradient-to-r from-orange-400 via-cyan-300 to-blue-400"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050B1A]/70 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 md:px-10">
+          <div className="inline-flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-orange-300" />
+            <span className="text-sm font-medium text-white">Gies Sustainability Intelligence Platform</span>
+          </div>
+
+          <nav className="hidden items-center gap-4 md:flex">
+            <a href="#problem" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Problem</a>
+            <a href="#intelligence" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Intelligence</a>
+            <a href="#inside" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Inside</a>
+            <a href="#matcher" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">AI Matcher</a>
+          </nav>
+
+          <Link
+            to="/"
+            className="inline-flex items-center rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10"
+          >
+            Open Dashboard
+          </Link>
+        </div>
+      </header>
+
       <div className="fixed inset-0 pointer-events-none opacity-60">
         <div className="absolute -top-20 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-[26rem] w-[26rem] rounded-full bg-blue-500/20 blur-3xl" />
@@ -385,9 +445,24 @@ export const MarketingLanding: React.FC = () => {
               </div>
             </motion.div>
           </div>
+
+          <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <p className="text-xs text-slate-300">Live Publications Indexed</p>
+              <p className="mt-1 text-xl font-semibold text-white">{publications.length}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <p className="text-xs text-slate-300">Faculty Experts Connected</p>
+              <p className="mt-1 text-xl font-semibold text-white">{uniqueFacultyCount}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <p className="text-xs text-slate-300">Active SDG Mappings</p>
+              <p className="mt-1 text-xl font-semibold text-white">{activeSdgCount}</p>
+            </div>
+          </div>
         </section>
 
-        <section>
+        <section id="problem">
           <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-3xl font-semibold text-white md:text-5xl">
             Sustainability Knowledge Is Everywhere - But Hard to Use
           </motion.h2>
@@ -431,7 +506,7 @@ export const MarketingLanding: React.FC = () => {
           </p>
         </section>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section id="intelligence" className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <motion.div initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0F1E3E] to-[#101A2E] p-7">
             <h2 className="text-3xl font-semibold text-white md:text-4xl">Explore Sustainability Research Like Never Before</h2>
             <p className="mt-3 text-slate-300">
@@ -503,7 +578,7 @@ export const MarketingLanding: React.FC = () => {
           </motion.div>
         </section>
 
-        <section>
+        <section id="inside">
           <h2 className="text-3xl font-semibold text-white md:text-5xl">Inside the Platform</h2>
           <p className="mt-3 text-slate-300">Real previews from current platform data.</p>
 
@@ -545,7 +620,7 @@ export const MarketingLanding: React.FC = () => {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-orange-300/30 bg-gradient-to-br from-[#2B1208] via-[#1E1324] to-[#121A2B] p-8 md:p-10">
+        <section id="matcher" className="rounded-3xl border border-orange-300/30 bg-gradient-to-br from-[#2B1208] via-[#1E1324] to-[#121A2B] p-8 md:p-10">
           <h2 className="text-3xl font-semibold text-white md:text-5xl">AI Faculty Matcher</h2>
           <p className="mt-4 max-w-3xl text-slate-300">
             Paste a research topic, keyword, or article abstract and instantly discover relevant faculty experts.
@@ -670,6 +745,24 @@ export const MarketingLanding: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">System Signals</p>
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="inline-flex items-center text-slate-200">
+                  <Database className="mr-2 h-4 w-4 text-cyan-300" />
+                  Data ingestion active from publication index
+                </div>
+                <div className="inline-flex items-center text-slate-200">
+                  <Zap className="mr-2 h-4 w-4 text-orange-300" />
+                  AI ranking pipeline updates in real time
+                </div>
+                <div className="inline-flex items-center text-slate-200">
+                  <ShieldCheck className="mr-2 h-4 w-4 text-emerald-300" />
+                  Evidence-backed expert matching
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -731,6 +824,18 @@ export const MarketingLanding: React.FC = () => {
           </div>
         </section>
       </main>
+
+      <div className="fixed bottom-4 right-4 z-40 hidden md:block">
+        <a
+          href="https://faculty-match-agent-908501096695.us-central1.run.app"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center rounded-xl border border-orange-300/40 bg-orange-500/20 px-4 py-2 text-xs font-medium text-orange-100 backdrop-blur shadow-[0_0_24px_rgba(249,115,22,0.25)] transition-colors hover:bg-orange-500/35"
+        >
+          Try AI Matcher
+          <ArrowRight className="ml-2 h-3.5 w-3.5" />
+        </a>
+      </div>
     </div>
   );
 };
