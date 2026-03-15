@@ -514,7 +514,7 @@ export const MarketingLanding: React.FC = () => {
             </p>
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Animated SDG Mapping Graph</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">click on the sdgs goal real case</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {SDGS.slice(0, 8).map((sdg) => (
                   <button
@@ -560,8 +560,7 @@ export const MarketingLanding: React.FC = () => {
                 <button
                   key={card.id}
                   type="button"
-                  onMouseEnter={() => setHoveredIntelligenceCard(card.id)}
-                  className={`w-full rounded-xl border p-4 text-left transition-all ${hoveredIntelligenceCard === card.id ? 'border-orange-300 bg-orange-400/15 shadow-[0_0_24px_rgba(251,146,60,0.2)]' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-4 text-left"
                 >
                   <div className="inline-flex items-center text-white">
                     <card.icon className="mr-2 h-4 w-4 text-orange-300" />
