@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import {
   ArrowRight,
   Sparkles,
+  Home,
   BookOpen,
   Users,
   Building2,
@@ -58,8 +59,6 @@ export const MarketingLanding: React.FC = () => {
   const featuredDepartment = exampleA?.department ?? 'Accountancy';
 
   const [activeNodeId, setActiveNodeId] = useState<string>('sdg-13');
-  const [selectedSdgId, setSelectedSdgId] = useState<number>(13);
-  const [hoveredIntelligenceCard, setHoveredIntelligenceCard] = useState<string>('research');
   const [typedText, setTypedText] = useState('');
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -195,18 +194,6 @@ export const MarketingLanding: React.FC = () => {
     return lines;
   }, [graphNodes, nodeById]);
 
-  const selectedSdgPublications = useMemo(
-    () =>
-      publications.filter((pub) => (pub.sdgs ?? []).includes(selectedSdgId)).slice(0, 4),
-    [publications, selectedSdgId],
-  );
-
-  const selectedSdgFaculty = useMemo(
-    () =>
-      Array.from(new Set(selectedSdgPublications.map((pub) => pub.author_name))).slice(0, 3),
-    [selectedSdgPublications],
-  );
-
   const sdg3Pubs = useMemo(
     () => publications.filter((pub) => (pub.sdgs ?? []).includes(3)).slice(0, 3),
     [publications],
@@ -307,11 +294,6 @@ export const MarketingLanding: React.FC = () => {
       .slice(0, 6);
   }, [publications]);
 
-  const mappedSdgs = (exampleA?.sdgs ?? [])
-    .map((id) => SDGS.find((sdg) => sdg.id === id))
-    .filter((sdg): sdg is (typeof SDGS)[number] => Boolean(sdg))
-    .slice(0, 3);
-
   const uniqueFacultyCount = useMemo(
     () => new Set(publications.map((pub) => pub.author_name)).size,
     [publications],
@@ -344,6 +326,7 @@ export const MarketingLanding: React.FC = () => {
           <nav className="hidden items-center gap-4 md:flex">
             <a href="#problem" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Problem</a>
             <a href="#intelligence" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Intelligence</a>
+            <a href="#navigate" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">Navigate</a>
             <a href="#matcher" className="text-xs uppercase tracking-[0.12em] text-slate-300 hover:text-white">AI Matcher</a>
           </nav>
 
@@ -589,6 +572,69 @@ export const MarketingLanding: React.FC = () => {
               ))}
             </div>
           </motion.div>
+        </section>
+
+        <section id="navigate" className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#091328] to-[#111A2E] p-8 md:p-10">
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">How To Navigate The Dashboard</h2>
+          <p className="mt-4 max-w-3xl text-slate-300">
+            This is the same navigation structure users see in the real dashboard. Start from the section that matches your role and jump directly into SDG insights.
+          </p>
+
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Sidebar Preview (Real Sections)</p>
+              <div className="mt-4 space-y-2">
+                {[
+                  { to: '/', label: 'Home', icon: Home, desc: 'Start with overall SDG and publication snapshot.' },
+                  { to: '/student', label: 'Student', icon: GraduationCap, desc: 'Discover learning-focused sustainability topics.' },
+                  { to: '/faculty', label: 'Faculty', icon: Users, desc: 'Find researchers and explore their profiles.' },
+                  { to: '/industry', label: 'Industry', icon: Briefcase, desc: 'See applied insights for external partners.' },
+                  { to: '/leadership', label: 'Strategic Overview', icon: Landmark, desc: 'Track institution-level sustainability signals.' },
+                ].map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className="block rounded-xl border border-white/10 bg-black/20 px-4 py-3 transition-colors hover:border-orange-300/40 hover:bg-orange-400/10"
+                  >
+                    <div className="inline-flex items-center text-white">
+                      <item.icon className="mr-2 h-4 w-4 text-orange-300" />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-300">{item.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Quick Start Journey</p>
+              <div className="mt-4 space-y-3">
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className="text-xs text-orange-300">Step 1</p>
+                  <p className="mt-1 text-sm text-white">Open Home and choose an SDG cluster that matches your goal.</p>
+                  <Link to="/" className="mt-2 inline-flex items-center text-xs text-cyan-300 hover:text-cyan-200">Go to Home <ArrowRight className="ml-1 h-3 w-3" /></Link>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className="text-xs text-orange-300">Step 2</p>
+                  <p className="mt-1 text-sm text-white">Open Faculty to shortlist experts, then enter individual profile pages.</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Link to="/faculty" className="inline-flex items-center rounded-full border border-white/20 px-2.5 py-1 text-xs text-slate-200 hover:bg-white/10">Faculty Directory</Link>
+                    {sdg3Faculty[0] && (
+                      <Link to={`/faculty/${sdg3Faculty[0].uuid}`} className="inline-flex items-center rounded-full border border-orange-300/40 bg-orange-400/10 px-2.5 py-1 text-xs text-orange-200 hover:bg-orange-400/20">Example Faculty Profile</Link>
+                    )}
+                  </div>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className="text-xs text-orange-300">Step 3</p>
+                  <p className="mt-1 text-sm text-white">Switch to Industry or Strategic Overview for implementation and decision support.</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Link to="/industry" className="inline-flex items-center rounded-full border border-white/20 px-2.5 py-1 text-xs text-slate-200 hover:bg-white/10">Industry</Link>
+                    <Link to="/leadership" className="inline-flex items-center rounded-full border border-white/20 px-2.5 py-1 text-xs text-slate-200 hover:bg-white/10">Strategic Overview</Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section id="matcher" className="rounded-3xl border border-orange-300/30 bg-gradient-to-br from-[#2B1208] via-[#1E1324] to-[#121A2B] p-8 md:p-10">
