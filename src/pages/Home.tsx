@@ -22,43 +22,6 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Faculty Matcher Hero */}
-      <div className="bg-white rounded-2xl p-8 border border-orange-200 shadow-sm relative overflow-hidden">
-        <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-orange-50 to-transparent pointer-events-none" />
-        <div className="relative z-10 max-w-4xl space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-            <Sparkles className="h-3.5 w-3.5" />
-            AI-Powered Discovery
-          </div>
-
-          <div>
-            <h2 className="text-3xl font-serif font-medium text-gray-900 mb-3">
-              AI Faculty Matcher
-            </h2>
-            <p className="text-gray-600 text-lg leading-relaxed">
-              Find the right Gies faculty expert based on research topics, keywords, or article abstracts.
-            </p>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 md:p-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <p className="text-sm text-gray-600 max-w-2xl leading-relaxed">
-                Launch the AI Faculty Matcher to discover relevant Gies experts from research themes and publication context.
-              </p>
-              <a
-                href="https://faculty-match-agent-908501096695.us-central1.run.app"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex shrink-0 items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700"
-              >
-                Open Faculty Matcher
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Intro Section */}
       <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm relative overflow-hidden">
         <div className="relative z-10 max-w-3xl">
@@ -91,6 +54,36 @@ export const Home: React.FC = () => {
           </div>
         </div>
         <div className="absolute right-0 top-0 h-full w-1/4 bg-gradient-to-l from-orange-50 to-transparent pointer-events-none" />
+      </div>
+
+      {/* AI Faculty Matcher Feature */}
+      <div className="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm relative overflow-hidden">
+        <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-orange-50/70 to-transparent pointer-events-none" />
+        <div className="relative z-10 space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+            <Sparkles className="h-3.5 w-3.5" />
+            Try our new feature!
+          </div>
+
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-serif font-medium text-gray-900 mb-2">
+              AI Faculty Matcher
+            </h2>
+            <p className="text-gray-600 text-base leading-relaxed">
+              Find the right Gies faculty expert based on research topics, keywords, or article abstracts.
+            </p>
+          </div>
+
+          <a
+            href="https://faculty-match-agent-908501096695.us-central1.run.app"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700"
+          >
+            Open Faculty Matcher
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </a>
+        </div>
       </div>
 
       {/* Main Entry Cards */}
