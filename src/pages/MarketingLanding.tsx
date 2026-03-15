@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import {
   ArrowRight,
   Sparkles,
@@ -13,227 +14,575 @@ import {
   Search,
   Network,
   Check,
+  Brain,
+  LineChart,
 } from 'lucide-react';
 import { MOCK_PUBLICATIONS } from '../data/publications';
 import { SDGS } from '../utils/transformData';
 
+type GraphNode = {
+  id: string;
+  label: string;
+  type: 'sdg' | 'faculty' | 'topic' | 'industry';
+  x: number;
+  y: number;
+  links: string[];
+  details: string[];
+};
+
 export const MarketingLanding: React.FC = () => {
-  const realPublications = MOCK_PUBLICATIONS.filter(
-    (pub) => pub.title && pub.title.toLowerCase() !== 'untitled publication' && pub.author_name,
+  const publications = useMemo(
+    () =>
+      MOCK_PUBLICATIONS.filter(
+        (pub) => pub.title && pub.title.toLowerCase() !== 'untitled publication' && pub.author_name,
+      ),
+    [],
   );
 
-  const featuredPublication = realPublications[0] ?? MOCK_PUBLICATIONS[0];
-  const secondPublication = realPublications[1] ?? realPublications[0];
-  const thirdPublication = realPublications[2] ?? realPublications[0];
+  const exampleA =
+    publications.find((p) => p.title.includes('CEO risk preference and investing in R and D')) ??
+    publications[0];
+  const exampleB =
+    publications.find((p) => p.title.includes('Fair Value Accounting and Stewardship')) ??
+    publications[1] ??
+    publications[0];
+  const exampleC =
+    publications.find((p) => p.title.includes('Prospect Theory predictions in the field')) ??
+    publications[2] ??
+    publications[0];
 
-  const featuredFaculty = featuredPublication?.author_name ?? 'Faculty Expert';
-  const featuredDepartment = featuredPublication?.department ?? 'Gies Business';
-  const featuredTitle = featuredPublication?.title ?? 'Research publication';
+  const featuredFaculty = exampleA?.author_name ?? 'Abdel-Khalik, A. Rashad';
+  const featuredDepartment = exampleA?.department ?? 'Accountancy';
 
-  const relatedFaculty = Array.from(
-    new Set(realPublications.map((pub) => pub.author_name).filter(Boolean)),
-  ).slice(0, 3);
+  const [activeNodeId, setActiveNodeId] = useState<string>('sdg-13');
+  const [selectedSdgId, setSelectedSdgId] = useState<number>(13);
+  const [hoveredIntelligenceCard, setHoveredIntelligenceCard] = useState<string>('research');
+  const [typedText, setTypedText] = useState('');
 
-  const mappedSdgs = (featuredPublication?.sdgs ?? [])
+  const typingSource = 'CEO risk preference and investing in R and D';
+
+  useEffect(() => {
+    let index = 0;
+    let deleting = false;
+
+    const timer = setInterval(() => {
+      if (!deleting) {
+        index += 1;
+        setTypedText(typingSource.slice(0, index));
+        if (index >= typingSource.length) {
+          deleting = true;
+        }
+      } else {
+        index -= 1;
+        setTypedText(typingSource.slice(0, Math.max(index, 0)));
+        if (index <= 0) {
+          deleting = false;
+        }
+      }
+    }, 60);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const graphNodes: GraphNode[] = useMemo(
+    () => [
+      {
+        id: 'sdg-13',
+        label: 'SDG 13',
+        type: 'sdg',
+        x: 20,
+        y: 20,
+        links: ['topic-1', 'faculty-1'],
+        details: ['Climate Action', 'Mapped research themes'],
+      },
+      {
+        id: 'sdg-8',
+        label: 'SDG 8',
+        type: 'sdg',
+        x: 15,
+        y: 68,
+        links: ['topic-2', 'faculty-2'],
+        details: ['Decent Work', 'Industry-linked outputs'],
+      },
+      {
+        id: 'topic-1',
+        label: 'Research Topic',
+        type: 'topic',
+        x: 48,
+        y: 26,
+        links: ['faculty-1', 'industry-1'],
+        details: ['Carbon and governance', 'Publication clusters'],
+      },
+      {
+        id: 'topic-2',
+        label: 'Insights',
+        type: 'topic',
+        x: 52,
+        y: 66,
+        links: ['faculty-2', 'industry-1'],
+        details: ['Decision frameworks', 'Applied sustainability'],
+      },
+      {
+        id: 'faculty-1',
+        label: 'Faculty',
+        type: 'faculty',
+        x: 78,
+        y: 24,
+        links: ['industry-1'],
+        details: [featuredFaculty, featuredDepartment],
+      },
+      {
+        id: 'faculty-2',
+        label: 'Experts',
+        type: 'faculty',
+        x: 82,
+        y: 60,
+        links: ['industry-1'],
+        details: ['Cross-department expertise', 'Profile intelligence'],
+      },
+      {
+        id: 'industry-1',
+        label: 'Industry',
+        type: 'industry',
+        x: 72,
+        y: 82,
+        links: [],
+        details: ['Real-world application', 'Strategy translation'],
+      },
+    ],
+    [featuredDepartment, featuredFaculty],
+  );
+
+  const nodeById = useMemo(
+    () => Object.fromEntries(graphNodes.map((node) => [node.id, node])),
+    [graphNodes],
+  );
+
+  const activeNode = nodeById[activeNodeId] ?? graphNodes[0];
+
+  const allLines = useMemo(() => {
+    const lines: Array<{ from: GraphNode; to: GraphNode; key: string }> = [];
+
+    graphNodes.forEach((from) => {
+      from.links.forEach((toId) => {
+        const to = nodeById[toId];
+        if (to) {
+          const key = [from.id, to.id].sort().join('--');
+          if (!lines.find((line) => line.key === key)) {
+            lines.push({ from, to, key });
+          }
+        }
+      });
+    });
+
+    return lines;
+  }, [graphNodes, nodeById]);
+
+  const selectedSdgPublications = useMemo(
+    () =>
+      publications.filter((pub) => (pub.sdgs ?? []).includes(selectedSdgId)).slice(0, 4),
+    [publications, selectedSdgId],
+  );
+
+  const selectedSdgFaculty = useMemo(
+    () =>
+      Array.from(new Set(selectedSdgPublications.map((pub) => pub.author_name))).slice(0, 3),
+    [selectedSdgPublications],
+  );
+
+  const topSdgBars = useMemo(() => {
+    const counts = new Map<number, number>();
+
+    publications.forEach((pub) => {
+      (pub.sdgs ?? []).forEach((id) => {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+      });
+    });
+
+    const list = Array.from(counts.entries())
+      .map(([id, count]) => ({
+        id,
+        label: SDGS.find((sdg) => sdg.id === id)?.shortName ?? `SDG ${id}`,
+        count,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+
+    const max = Math.max(...list.map((item) => item.count), 1);
+
+    return list.map((item) => ({
+      ...item,
+      widthPct: Math.round((item.count / max) * 100),
+    }));
+  }, [publications]);
+
+  const departmentClusters = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    publications.forEach((pub) => {
+      const dept = pub.department || 'Other';
+      counts.set(dept, (counts.get(dept) ?? 0) + 1);
+    });
+
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [publications]);
+
+  const themeWords = useMemo(() => {
+    const stopWords = new Set([
+      'the',
+      'and',
+      'for',
+      'with',
+      'from',
+      'into',
+      'risk',
+      'using',
+      'analysis',
+      'based',
+      'study',
+      'data',
+      'of',
+      'in',
+      'to',
+      'on',
+      'a',
+      'an',
+    ]);
+
+    const wordCounts = new Map<string, number>();
+
+    publications.slice(0, 150).forEach((pub) => {
+      pub.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter((w) => w.length > 3 && !stopWords.has(w))
+        .forEach((word) => {
+          wordCounts.set(word, (wordCounts.get(word) ?? 0) + 1);
+        });
+    });
+
+    return Array.from(wordCounts.entries())
+      .map(([word, count]) => ({ word, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6);
+  }, [publications]);
+
+  const mappedSdgs = (exampleA?.sdgs ?? [])
     .map((id) => SDGS.find((sdg) => sdg.id === id))
     .filter((sdg): sdg is (typeof SDGS)[number] => Boolean(sdg))
     .slice(0, 3);
 
-  const heroSdgs = SDGS.slice(0, 6);
-
   return (
-    <div className="min-h-screen bg-[#F5F5F2] text-gray-900">
-      <main className="mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16 space-y-24">
-        <section className="relative overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-br from-[#FFF8EF] via-white to-[#EEF7FF] p-8 shadow-sm md:p-12">
-          <div className="absolute -right-28 -top-28 h-72 w-72 rounded-full bg-orange-200/30 blur-3xl" />
-          <div className="absolute -left-20 bottom-0 h-56 w-56 rounded-full bg-cyan-200/30 blur-3xl" />
+    <div className="min-h-screen bg-[#050B1A] text-slate-100">
+      <div className="fixed inset-0 pointer-events-none opacity-60">
+        <div className="absolute -top-20 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-orange-500/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-[26rem] w-[26rem] rounded-full bg-blue-500/20 blur-3xl" />
+      </div>
 
-          <div className="relative z-10 grid grid-cols-1 gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-5">Gies Sustainability Intelligence Platform</p>
-              <h1 className="text-4xl font-serif font-medium leading-[1.08] text-gray-900 md:text-6xl">
+      <main className="relative mx-auto max-w-7xl px-6 py-12 md:px-10 md:py-16 space-y-28">
+        <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/90 via-[#0B1630]/90 to-[#09101F]/90 p-8 shadow-2xl md:p-12">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <p className="text-xs uppercase tracking-[0.22em] text-orange-300/90 mb-5">AI Sustainability Intelligence System</p>
+              <h1 className="text-4xl font-semibold leading-[1.04] text-white md:text-6xl">
                 Discover the Intelligence Behind Sustainability Research
               </h1>
-              <p className="mt-6 max-w-3xl text-base leading-relaxed text-gray-600 md:text-xl">
+              <p className="mt-6 max-w-3xl text-base leading-relaxed text-slate-300 md:text-xl">
                 The Gies Sustainability Intelligence Platform transforms academic sustainability research into actionable insights for students, faculty, and industry partners.
               </p>
-              <div className="mt-8">
+
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   to="/"
-                  className="inline-flex items-center rounded-xl bg-orange-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-orange-700"
+                  className="inline-flex items-center rounded-xl bg-orange-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_30px_rgba(249,115,22,0.35)] transition-all hover:bg-orange-400"
                 >
                   Open Dashboard
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
+                <Link
+                  to="/sdg/1"
+                  className="inline-flex items-center rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-medium text-slate-100 backdrop-blur transition-colors hover:bg-white/10"
+                >
+                  Explore Research
+                </Link>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="relative rounded-2xl border border-gray-200 bg-white/80 p-6 backdrop-blur">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-white/0 to-orange-50/70 pointer-events-none" />
-              <div className="relative z-10">
-                <p className="text-xs uppercase tracking-[0.16em] text-gray-500 mb-4">Research Network</p>
-                <div className="relative h-64">
-                  <div className="absolute left-8 top-8 h-20 w-20 rounded-full border border-orange-200 bg-orange-50 flex items-center justify-center text-orange-700 font-medium animate-pulse">
-                    SDGs
-                  </div>
-                  <div className="absolute right-10 top-4 h-16 w-16 rounded-full border border-blue-200 bg-blue-50 flex items-center justify-center text-blue-700 text-xs font-medium animate-pulse">
-                    Faculty
-                  </div>
-                  <div className="absolute right-4 bottom-10 h-18 w-18 rounded-full border border-emerald-200 bg-emerald-50 flex items-center justify-center text-emerald-700 text-xs font-medium p-2 text-center animate-pulse">
-                    Industry
-                  </div>
-                  <div className="absolute left-1/3 bottom-3 h-14 w-14 rounded-full border border-purple-200 bg-purple-50 flex items-center justify-center text-purple-700 text-xs font-medium animate-pulse">
-                    AI
-                  </div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.14em] text-slate-300">Live Intelligence Network</p>
+                <Network className="h-4 w-4 text-orange-300" />
+              </div>
 
-                  <div className="absolute left-[84px] top-[92px] h-px w-40 bg-gradient-to-r from-orange-300 to-blue-300" />
-                  <div className="absolute left-[84px] top-[98px] h-px w-44 bg-gradient-to-r from-orange-300 to-emerald-300" />
-                  <div className="absolute left-[120px] top-[132px] h-px w-24 bg-gradient-to-r from-orange-300 to-purple-300" />
+              <div className="relative h-[22rem] rounded-xl border border-white/10 bg-[#050A16]/80">
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  {allLines.map((line, i) => {
+                    const isActive =
+                      line.from.id === activeNodeId ||
+                      line.to.id === activeNodeId ||
+                      activeNode.links.includes(line.from.id) ||
+                      activeNode.links.includes(line.to.id);
 
-                  <div className="absolute left-0 bottom-0 right-0 grid grid-cols-3 gap-2">
-                    {heroSdgs.map((sdg) => (
-                      <div key={sdg.id} className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] text-gray-600">
-                        SDG {sdg.id}
-                      </div>
+                    return (
+                      <motion.line
+                        key={line.key}
+                        x1={line.from.x}
+                        y1={line.from.y}
+                        x2={line.to.x}
+                        y2={line.to.y}
+                        stroke={isActive ? '#FB923C' : '#334155'}
+                        strokeWidth={isActive ? 0.7 : 0.35}
+                        initial={{ pathLength: 0, opacity: 0.2 }}
+                        whileInView={{ pathLength: 1, opacity: isActive ? 0.9 : 0.5 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: i * 0.05 }}
+                      />
+                    );
+                  })}
+                </svg>
+
+                {graphNodes.map((node, index) => {
+                  const active = node.id === activeNodeId;
+                  const typeColor = {
+                    sdg: 'bg-emerald-400/25 border-emerald-300 text-emerald-100',
+                    faculty: 'bg-blue-400/25 border-blue-300 text-blue-100',
+                    topic: 'bg-purple-400/25 border-purple-300 text-purple-100',
+                    industry: 'bg-orange-400/25 border-orange-300 text-orange-100',
+                  }[node.type];
+
+                  return (
+                    <motion.button
+                      key={node.id}
+                      type="button"
+                      onMouseEnter={() => setActiveNodeId(node.id)}
+                      onFocus={() => setActiveNodeId(node.id)}
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full border px-3 py-1 text-xs font-medium backdrop-blur transition-all ${typeColor} ${active ? 'scale-110 shadow-[0_0_20px_rgba(251,146,60,0.35)]' : ''}`}
+                      style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                      initial={{ opacity: 0, y: 6 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.35, delay: 0.2 + index * 0.05 }}
+                    >
+                      {node.label}
+                    </motion.button>
+                  );
+                })}
+
+                <motion.div key={activeNode.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="absolute left-3 right-3 bottom-3 rounded-lg border border-white/15 bg-slate-950/75 p-3">
+                  <p className="text-sm font-medium text-white">{activeNode.label}</p>
+                  <div className="mt-1 space-y-1">
+                    {activeNode.details.map((detail) => (
+                      <p key={detail} className="text-xs text-slate-300">
+                        {detail}
+                      </p>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        <section className="space-y-10">
-          <div>
-            <h2 className="text-3xl font-serif font-medium text-gray-900 md:text-5xl">
-              Sustainability Knowledge Is Everywhere - But Hard to Use
-            </h2>
-            <p className="mt-5 max-w-4xl text-lg leading-relaxed text-gray-600">
-              The volume of sustainability research is growing quickly, but the path from publications to practical action remains fragmented.
-            </p>
+        <section>
+          <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-3xl font-semibold text-white md:text-5xl">
+            Sustainability Knowledge Is Everywhere - But Hard to Use
+          </motion.h2>
+
+          <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
+            {[
+              {
+                title: 'Research Fragmentation',
+                desc: 'Sustainability research is scattered across journals and departments.',
+                icon: BookOpen,
+              },
+              {
+                title: 'Expert Discovery',
+                desc: 'Organizations struggle to identify the right academic experts.',
+                icon: Users,
+              },
+              {
+                title: 'Implementation Gap',
+                desc: 'Turning research insights into real-world solutions remains difficult.',
+                icon: Building2,
+              },
+            ].map((item, i) => (
+              <motion.article
+                key={item.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg backdrop-blur"
+              >
+                <item.icon className="h-5 w-5 text-orange-300" />
+                <h3 className="mt-4 text-xl font-medium text-white">{item.title}</h3>
+                <p className="mt-3 text-slate-300 leading-relaxed">{item.desc}</p>
+              </motion.article>
+            ))}
           </div>
 
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm uppercase tracking-[0.14em] text-gray-500">Research</h3>
-              <p className="mt-3 text-base text-gray-700 leading-relaxed">
-                Sustainability research is fragmented across journals and departments.
-              </p>
-              <p className="mt-3 text-base text-gray-700 leading-relaxed">
-                Valuable insights remain buried in academic publications.
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm uppercase tracking-[0.14em] text-gray-500">Faculty Expertise</h3>
-              <p className="mt-3 text-base text-gray-700 leading-relaxed">
-                Industry struggles to identify the right academic experts.
-              </p>
-              <p className="mt-3 text-base text-gray-700 leading-relaxed">
-                Expert knowledge is hard to discover when data is disconnected.
-              </p>
-            </article>
-
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="text-sm uppercase tracking-[0.14em] text-gray-500">Industry Needs</h3>
-              <p className="mt-3 text-base text-gray-700 leading-relaxed">
-                Students have limited visibility into research opportunities.
-              </p>
-              <p className="mt-3 text-base text-gray-700 leading-relaxed">
-                Organizations need faster paths from research to implementation.
-              </p>
-            </article>
-          </div>
-
-          <p className="text-2xl font-serif text-gray-900">
+          <p className="mt-7 text-lg text-slate-200">
             The knowledge exists, but connecting research to real-world action remains difficult.
           </p>
         </section>
 
-        <section className="rounded-3xl border border-gray-200 bg-gradient-to-br from-[#F1F8FF] via-white to-[#F4FFF7] p-8 shadow-sm md:p-10">
-          <h2 className="text-3xl font-serif font-medium text-gray-900 md:text-5xl">
-            Explore Sustainability Research Like Never Before
-          </h2>
-          <p className="mt-4 max-w-3xl text-base md:text-lg text-gray-600 leading-relaxed">
-            The platform maps research outputs to SDGs, faculty expertise, and applied insights, creating a connected sustainability intelligence layer.
-          </p>
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <motion.div initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0F1E3E] to-[#101A2E] p-7">
+            <h2 className="text-3xl font-semibold text-white md:text-4xl">Explore Sustainability Research Like Never Before</h2>
+            <p className="mt-3 text-slate-300">
+              The platform connects research outputs, SDGs, faculty expertise, and applied insights into one intelligence layer.
+            </p>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 mb-4">SDG Mapping Graph</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {SDGS.slice(0, 9).map((sdg) => (
-                  <div key={sdg.id} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                    <p className="text-[11px] text-gray-500">SDG {sdg.id}</p>
-                    <p className="text-sm text-gray-700 truncate">{sdg.shortName}</p>
-                  </div>
+            <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Animated SDG Mapping Graph</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {SDGS.slice(0, 8).map((sdg) => (
+                  <button
+                    key={sdg.id}
+                    type="button"
+                    onClick={() => setSelectedSdgId(sdg.id)}
+                    className={`rounded-full border px-3 py-1 text-xs transition-all ${selectedSdgId === sdg.id ? 'border-orange-300 bg-orange-400/20 text-orange-100' : 'border-white/20 bg-white/5 text-slate-200 hover:bg-white/10'}`}
+                  >
+                    SDG {sdg.id}
+                  </button>
                 ))}
               </div>
-            </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500 mb-4">Connected Intelligence</p>
-              <div className="space-y-3 text-sm text-gray-700">
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 inline-flex items-center w-full">
-                  <BookOpen className="h-4 w-4 mr-2 text-blue-600" />
-                  Research Publications
+              <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <p className="text-xs text-slate-300">Research Topics</p>
+                  {selectedSdgPublications.slice(0, 2).map((pub) => (
+                    <p key={pub.article_uuid} className="mt-2 text-sm text-white">
+                      {pub.title}
+                    </p>
+                  ))}
                 </div>
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 inline-flex items-center w-full">
-                  <Users className="h-4 w-4 mr-2 text-purple-600" />
-                  Faculty Expertise Profiles
-                </div>
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 inline-flex items-center w-full">
-                  <Building2 className="h-4 w-4 mr-2 text-emerald-600" />
-                  Industry-Oriented Insights
+                <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <p className="text-xs text-slate-300">Faculty Working On This</p>
+                  {selectedSdgFaculty.map((name) => (
+                    <p key={name} className="mt-2 text-sm text-white">
+                      {name}
+                    </p>
+                  ))}
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, x: 16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#15102A] to-[#0B1429] p-7">
+            <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Connected Intelligence</p>
+            <div className="mt-4 space-y-3">
+              {[
+                { id: 'research', title: 'Research Publications', icon: BookOpen },
+                { id: 'faculty', title: 'Faculty Expertise Profiles', icon: Users },
+                { id: 'industry', title: 'Industry-Oriented Insights', icon: Building2 },
+              ].map((card) => (
+                <button
+                  key={card.id}
+                  type="button"
+                  onMouseEnter={() => setHoveredIntelligenceCard(card.id)}
+                  className={`w-full rounded-xl border p-4 text-left transition-all ${hoveredIntelligenceCard === card.id ? 'border-orange-300 bg-orange-400/15 shadow-[0_0_24px_rgba(251,146,60,0.2)]' : 'border-white/10 bg-white/5 hover:bg-white/10'}`}
+                >
+                  <div className="inline-flex items-center text-white">
+                    <card.icon className="mr-2 h-4 w-4 text-orange-300" />
+                    {card.title}
+                  </div>
+                  <p className="mt-2 text-sm text-slate-300">
+                    {card.id === 'research' && 'Live publication data mapped to SDGs and themes.'}
+                    {card.id === 'faculty' && 'Expert profiles connected to publication evidence.'}
+                    {card.id === 'industry' && 'Applied insights designed for strategic decisions.'}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        <section>
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">Inside the Platform</h2>
+          <p className="mt-3 text-slate-300">Real previews from current platform data.</p>
+
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Sustainability Dashboard</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(mappedSdgs.length > 0 ? mappedSdgs : SDGS.slice(0, 3)).map((sdg) => (
+                  <span key={sdg.id} className="rounded-full border border-emerald-300/40 bg-emerald-400/15 px-3 py-1 text-xs text-emerald-100 transition-all hover:scale-105 hover:bg-emerald-400/25">
+                    SDG {sdg.id}
+                  </span>
+                ))}
+              </div>
+            </motion.article>
+
+            <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Faculty Profiles</p>
+              {[featuredFaculty, exampleB?.author_name, exampleC?.author_name]
+                .filter(Boolean)
+                .slice(0, 3)
+                .map((name) => (
+                  <motion.div key={name} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="mt-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2">
+                    <p className="text-sm text-white">{name}</p>
+                    <p className="text-xs text-slate-300">{featuredDepartment}</p>
+                  </motion.div>
+                ))}
+            </motion.article>
+
+            <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Research Explorer</p>
+              {[exampleA?.title, exampleB?.title, exampleC?.title]
+                .filter(Boolean)
+                .map((title) => (
+                  <motion.div key={title} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-3 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white">
+                    {title}
+                  </motion.div>
+                ))}
+            </motion.article>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-white p-8 shadow-sm md:p-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-3 py-1 text-xs font-medium text-orange-700">
-            <Sparkles className="h-3.5 w-3.5" />
-            New Feature
-          </div>
-          <h2 className="mt-4 text-3xl font-serif font-medium text-gray-900 md:text-5xl">AI Faculty Matcher</h2>
-          <p className="mt-4 max-w-3xl text-base md:text-lg text-gray-600 leading-relaxed">
-            Paste a research topic, keyword, or article abstract and instantly discover the most relevant Gies faculty experts.
+        <section className="rounded-3xl border border-orange-300/30 bg-gradient-to-br from-[#2B1208] via-[#1E1324] to-[#121A2B] p-8 md:p-10">
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">AI Faculty Matcher</h2>
+          <p className="mt-4 max-w-3xl text-slate-300">
+            Paste a research topic, keyword, or article abstract and instantly discover relevant faculty experts.
           </p>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Input</p>
-              <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700 leading-relaxed">
-                "{featuredTitle.slice(0, 180)}{featuredTitle.length > 180 ? '...' : ''}"
+          <div className="mt-7 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Input</p>
+              <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-4 font-mono text-sm text-orange-200 min-h-16">
+                {typedText}
+                <span className="ml-0.5 animate-pulse">|</span>
               </div>
-              <div className="mt-4 inline-flex items-center text-sm text-orange-700">
-                <Search className="h-4 w-4 mr-2" />
-                AI semantic matching in progress
-              </div>
+              <p className="mt-3 inline-flex items-center text-xs text-slate-300">
+                <Search className="mr-2 h-4 w-4 text-orange-300" />
+                semantic parsing + topic extraction + expert ranking
+              </p>
             </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Result Preview</p>
-              <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <p className="text-base font-medium text-gray-900">{featuredFaculty}</p>
-                <p className="text-sm text-gray-600 mt-1">{featuredDepartment}</p>
-                <div className="mt-3 space-y-2 text-sm text-gray-700">
-                  <div className="inline-flex items-center"><Check className="h-4 w-4 mr-2 text-emerald-700" />keyword search</div>
-                  <div className="inline-flex items-center"><Check className="h-4 w-4 mr-2 text-emerald-700" />abstract-based matching</div>
-                  <div className="inline-flex items-center"><Check className="h-4 w-4 mr-2 text-emerald-700" />AI semantic similarity</div>
-                  <div className="inline-flex items-center"><Check className="h-4 w-4 mr-2 text-emerald-700" />faculty profiles with publications and SDG alignment</div>
-                </div>
+            <motion.div initial={{ opacity: 0, x: 12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-emerald-100">Result</p>
+              <h3 className="mt-3 text-xl font-medium text-white">{featuredFaculty}</h3>
+              <p className="text-sm text-emerald-100/90">{featuredDepartment}</p>
+              <div className="mt-4 grid grid-cols-1 gap-2 text-sm text-slate-100">
+                <div className="inline-flex items-center"><Check className="mr-2 h-4 w-4 text-emerald-300" />keyword search</div>
+                <div className="inline-flex items-center"><Check className="mr-2 h-4 w-4 text-emerald-300" />abstract-based matching</div>
+                <div className="inline-flex items-center"><Check className="mr-2 h-4 w-4 text-emerald-300" />AI semantic similarity</div>
+                <div className="inline-flex items-center"><Check className="mr-2 h-4 w-4 text-emerald-300" />faculty profiles aligned with SDGs</div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-7">
             <a
               href="https://faculty-match-agent-908501096695.us-central1.run.app"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center rounded-xl bg-orange-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-orange-700"
+              className="inline-flex items-center rounded-xl bg-orange-500 px-6 py-3 text-sm font-medium text-white shadow-[0_0_30px_rgba(249,115,22,0.35)] transition-all hover:bg-orange-400"
             >
               Try the AI Faculty Matcher
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -242,111 +591,138 @@ export const MarketingLanding: React.FC = () => {
         </section>
 
         <section>
-          <h2 className="text-3xl font-serif font-medium text-gray-900 md:text-5xl">From Research to Real-World Impact</h2>
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">From Research to Real-World Impact</h2>
           <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Step 1</p>
-              <h3 className="mt-2 text-xl font-medium text-gray-900">Explore Sustainability Topics</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">Browse research insights organized by SDGs.</p>
-            </article>
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Step 2</p>
-              <h3 className="mt-2 text-xl font-medium text-gray-900">Discover Faculty Experts</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">Identify researchers working on specific sustainability challenges.</p>
-            </article>
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Step 3</p>
-              <h3 className="mt-2 text-xl font-medium text-gray-900">Apply Insights</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">Translate academic research into real-world sustainability strategies.</p>
-            </article>
+            {[
+              {
+                step: 'Step 1',
+                title: 'Explore Sustainability Topics',
+                desc: 'Browse research insights organized by SDGs.',
+                icon: Brain,
+              },
+              {
+                step: 'Step 2',
+                title: 'Discover Faculty Experts',
+                desc: 'Identify researchers working on sustainability challenges.',
+                icon: Users,
+              },
+              {
+                step: 'Step 3',
+                title: 'Apply Insights',
+                desc: 'Translate research findings into real-world sustainability strategies.',
+                icon: LineChart,
+              },
+            ].map((item, index) => (
+              <motion.article
+                key={item.title}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.12, duration: 0.4 }}
+                className="rounded-2xl border border-white/10 bg-white/5 p-6"
+              >
+                <item.icon className="h-5 w-5 text-orange-300" />
+                <p className="mt-3 text-xs uppercase tracking-[0.12em] text-slate-300">{item.step}</p>
+                <h3 className="mt-2 text-xl font-medium text-white">{item.title}</h3>
+                <p className="mt-2 text-slate-300">{item.desc}</p>
+              </motion.article>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">Live Sustainability Intelligence</h2>
+
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Research Topics by SDG</p>
+              <div className="mt-4 space-y-2">
+                {topSdgBars.map((bar) => (
+                  <div key={bar.id}>
+                    <div className="mb-1 flex items-center justify-between text-xs text-slate-300">
+                      <span>{bar.label}</span>
+                      <span>{bar.count}</span>
+                    </div>
+                    <motion.div initial={{ width: 0 }} whileInView={{ width: `${bar.widthPct}%` }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-300" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Faculty Expertise Clusters</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {departmentClusters.map((dept) => (
+                  <motion.span key={dept.name} whileHover={{ scale: 1.06 }} className="rounded-full border border-purple-300/40 bg-purple-400/15 px-3 py-1 text-xs text-purple-100">
+                    {dept.name} ({dept.count})
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-slate-300">Emerging Sustainability Themes</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {themeWords.map((theme) => (
+                  <motion.div key={theme.word} whileHover={{ y: -2 }} className="rounded-lg border border-orange-300/30 bg-orange-400/10 px-2 py-2 text-xs text-orange-100 text-center">
+                    {theme.word}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
         <section>
-          <h2 className="text-3xl font-serif font-medium text-gray-900 md:text-5xl">Who Benefits</h2>
+          <h2 className="text-3xl font-semibold text-white md:text-5xl">Who Benefits</h2>
           <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <GraduationCap className="h-6 w-6 text-blue-600" />
-              <h3 className="mt-3 text-lg font-medium text-gray-900">Students</h3>
-              <p className="mt-2 text-sm text-gray-600">Discover research opportunities and connect with faculty mentors.</p>
-            </article>
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <Users className="h-6 w-6 text-purple-600" />
-              <h3 className="mt-3 text-lg font-medium text-gray-900">Faculty</h3>
-              <p className="mt-2 text-sm text-gray-600">Increase research visibility and discover collaboration opportunities.</p>
-            </article>
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <Briefcase className="h-6 w-6 text-emerald-600" />
-              <h3 className="mt-3 text-lg font-medium text-gray-900">Industry</h3>
-              <p className="mt-2 text-sm text-gray-600">Access academic expertise and sustainability insights.</p>
-            </article>
-            <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <Landmark className="h-6 w-6 text-orange-600" />
-              <h3 className="mt-3 text-lg font-medium text-gray-900">Leadership</h3>
-              <p className="mt-2 text-sm text-gray-600">Gain strategic visibility into sustainability research impact.</p>
-            </article>
+            {[
+              {
+                name: 'Students',
+                desc: 'Discover research opportunities and connect with faculty mentors.',
+                icon: GraduationCap,
+              },
+              {
+                name: 'Faculty',
+                desc: 'Increase research visibility and discover collaboration opportunities.',
+                icon: Users,
+              },
+              {
+                name: 'Industry',
+                desc: 'Access academic expertise and sustainability insights.',
+                icon: Briefcase,
+              },
+              {
+                name: 'Leadership',
+                desc: 'Gain strategic visibility into sustainability research impact.',
+                icon: Landmark,
+              },
+            ].map((item) => (
+              <motion.article key={item.name} whileHover={{ y: -8, scale: 1.01 }} className="rounded-2xl border border-white/10 bg-white/5 p-6">
+                <item.icon className="h-6 w-6 text-orange-300" />
+                <h3 className="mt-3 text-xl font-medium text-white">{item.name}</h3>
+                <p className="mt-2 text-slate-300">{item.desc}</p>
+              </motion.article>
+            ))}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white to-[#F6F8FF] p-8 shadow-sm md:p-10">
-          <h2 className="text-3xl font-serif font-medium text-gray-900 md:text-5xl">Inside the Platform</h2>
-          <p className="mt-4 max-w-3xl text-base md:text-lg text-gray-600">
-            Real previews from current platform data, presented as product highlights.
-          </p>
-
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <article className="rounded-2xl border border-gray-200 bg-white p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Sustainability Dashboard</p>
-              <p className="mt-3 text-sm text-gray-700">Highlighted SDGs</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {(mappedSdgs.length > 0 ? mappedSdgs : SDGS.slice(0, 3)).map((sdg) => (
-                  <span key={sdg.id} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-700">
-                    SDG {sdg.id}
-                  </span>
-                ))}
-              </div>
-            </article>
-
-            <article className="rounded-2xl border border-gray-200 bg-white p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Faculty Profiles</p>
-              <p className="mt-3 text-base font-medium text-gray-900">{featuredFaculty}</p>
-              <p className="mt-1 text-sm text-gray-600">{featuredDepartment}</p>
-              <div className="mt-3 space-y-2 text-sm text-gray-700">
-                {relatedFaculty.map((name) => (
-                  <div key={name} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">{name}</div>
-                ))}
-              </div>
-            </article>
-
-            <article className="rounded-2xl border border-gray-200 bg-white p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Research Explorer</p>
-              <div className="mt-3 space-y-2 text-sm text-gray-700">
-                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">{featuredTitle}</div>
-                {secondPublication?.title ? (
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">{secondPublication.title}</div>
-                ) : null}
-                {thirdPublication?.title ? (
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">{thirdPublication.title}</div>
-                ) : null}
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section className="rounded-3xl border border-gray-900 bg-gray-900 p-8 text-white shadow-sm md:p-10">
+        <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-[#0E1528] to-[#1F130B] p-8 md:p-12">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 text-gray-300 mb-4">
-              <Bot className="h-4 w-4" />
-              <span className="text-xs uppercase tracking-[0.16em]">Sustainability Intelligence</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-slate-200">
+              <Bot className="h-4 w-4 text-orange-300" />
+              AI-Powered Sustainability Intelligence
             </div>
-            <h2 className="text-3xl font-serif font-medium md:text-5xl">Start Exploring Sustainability Intelligence</h2>
-            <p className="mt-4 text-base leading-relaxed text-gray-300 md:text-lg">
+            <h2 className="mt-5 text-4xl font-semibold text-white md:text-6xl leading-[1.06]">
+              Start Exploring Sustainability Intelligence
+            </h2>
+            <p className="mt-4 text-lg text-slate-300">
               Discover research, experts, and insights that connect sustainability knowledge with real-world action.
             </p>
-            <div className="mt-7">
+            <div className="mt-8">
               <Link
                 to="/"
-                className="inline-flex items-center rounded-xl bg-orange-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-orange-700"
+                className="inline-flex items-center rounded-xl bg-orange-500 px-7 py-3 text-sm font-medium text-white shadow-[0_0_40px_rgba(249,115,22,0.4)] transition-all hover:bg-orange-400"
               >
                 Open Dashboard
                 <ArrowRight className="ml-2 h-4 w-4" />
