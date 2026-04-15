@@ -36,13 +36,13 @@ export const Sidebar: React.FC = () => {
     <aside className="w-20 hover:w-80 transition-all duration-300 ease-in-out bg-white border-r border-gray-200 h-full fixed left-0 top-0 flex flex-col z-50 overflow-hidden group shadow-lg">
 
       {/* Logo / Header */}
-      <div className="min-h-20 px-4 py-3 border-b border-gray-100 flex items-center">
-        <div className="flex items-center gap-3 w-full min-w-0">
+      <div className="min-h-20 px-4 py-3 border-b border-gray-100 flex items-center justify-center group-hover:justify-start transition-all duration-300">
+        <div className="flex items-center gap-0 group-hover:gap-3 w-full min-w-0 justify-center group-hover:justify-start transition-all duration-300">
           <div className="w-8 h-8 min-w-[2rem] bg-orange-600 rounded-lg flex items-center justify-center text-white font-bold shrink-0">
             G
           </div>
 
-          <span className="min-w-0 max-w-full font-serif text-sm sm:text-base font-semibold leading-tight text-gray-900 tracking-tight opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100 whitespace-normal break-words">
+          <span className="block max-w-0 overflow-hidden whitespace-nowrap font-serif text-sm sm:text-base font-semibold leading-tight text-gray-900 tracking-tight opacity-0 group-hover:max-w-[14rem] group-hover:opacity-100 transition-all duration-300 delay-100">
             Gies Sustainability Dashboard
           </span>
         </div>
@@ -56,7 +56,7 @@ export const Sidebar: React.FC = () => {
             to={item.to}
             className={({ isActive }) =>
               cn(
-                "flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative overflow-hidden",
+                "flex items-center justify-center group-hover:justify-start px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative overflow-hidden",
                 isActive
                   ? "bg-orange-50 text-orange-700"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -65,7 +65,7 @@ export const Sidebar: React.FC = () => {
           >
             <item.icon className="w-5 h-5 min-w-[1.25rem] shrink-0" />
 
-            <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-3 delay-75">
+            <span className="block max-w-0 overflow-hidden whitespace-nowrap opacity-0 ml-0 group-hover:max-w-[10rem] group-hover:ml-3 group-hover:opacity-100 transition-all duration-300 delay-75">
               {item.label}
             </span>
           </NavLink>
